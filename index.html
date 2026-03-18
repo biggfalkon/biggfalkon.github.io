@@ -2,10 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Karakter Evreni</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#443a74"/>
+    <meta name="theme-color" content="#00000000"/>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Karakterler">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="description" content="Karakter galerisi ve yönetim paneli">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -56,6 +61,19 @@
             background-color: var(--bg);
             color: var(--on-bg);
             overflow-x: hidden;
+            transition: --primary 0.4s ease;
+            /* Yanlara ve alta güvenli boşluk */
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+        /* AU theme override: overrides primary-related accent colors */
+        body.au-theme-active {
+            --primary-rgb: var(--au-theme-rgb);
+            --primary: rgb(var(--au-theme-rgb));
+            --on-primary: var(--au-theme-on);
+            --primary-container: var(--au-theme-container);
+            --on-primary-container: var(--au-theme-on-container);
         }
         body::before {
             content: '';
@@ -102,6 +120,11 @@
 
         /* AU mode chip in filter */
         .au-mode-btn.active { background-color: var(--au); color: #0a2e22; border-color: var(--au); }
+        .chip.au-selected { background-color: var(--au-container); color: var(--on-au-container); border-color: var(--au); font-weight: 700; }
+
+        /* Compare mode: pair cards visually */
+        .compare-pair-left { border-radius: 18px 4px 4px 18px; margin-right: -2px; }
+        .compare-pair-right { border-radius: 4px 18px 18px 4px; margin-left: -2px; }
 
         /* Grid */
         #character-grid { display: grid; gap: 1.5rem; justify-content: center; }
@@ -275,13 +298,13 @@
         /* AU version card in modal */
         .au-evo-card {
             border: 2px solid rgba(var(--au-rgb), 0.6);
-            background: linear-gradient(135deg, rgba(10,79,58,0.3) 0%, rgba(32,31,37,0.9) 100%);
+            background: rgba(255,255,255,0.04);
         }
 
         /* Fusion AU card in modal */
         .au-fusion-card {
             border: 2px solid rgba(var(--au-rgb), 0.6);
-            background: linear-gradient(135deg, rgba(10,79,58,0.4) 0%, rgba(63,0,155,0.3) 100%);
+            background: rgba(255,255,255,0.04);
         }
 
         /* Reachable AU filter badge */
@@ -313,7 +336,7 @@
 <body class="p-4 sm:p-6 md:p-8">
 
 <div id="app" class="max-w-screen-2xl mx-auto">
-    <header class="mb-8 text-center" style="border-color: var(--outline-var);">
+    <header class="mb-8 text-center" style="border-color: var(--outline-var); padding-top: calc(env(safe-area-inset-top) + 1rem);">
         <div>
             <h1 id="gallery-title" class="text-4xl md:text-5xl font-extrabold" style="color: var(--primary); font-family: 'Metamorphous', serif; cursor: pointer;">
                 Character Gallery
@@ -334,61 +357,70 @@
         </button>
     </div>
 
-    <div class="control-panel sticky top-4 z-50 flex flex-wrap items-center justify-center gap-3 mb-8 px-4 py-3 rounded-2xl shadow-lg">
+    <div class="control-panel sticky z-50 flex items-center justify-center gap-2 mb-8 px-3 py-2.5 rounded-2xl shadow-lg flex-wrap" style="top: max(1rem, calc(env(safe-area-inset-top) + 0.5rem));">
 
+        <!-- Left group: Search + Filter + AU -->
+        <div class="flex items-center gap-2">
             <!-- Search -->
-            <button id="open-search-btn" class="chip ripple-effect" aria-label="Search">
-                <span class="material-symbols-outlined">search</span>
-                <span class="hidden sm:inline font-semibold">Search</span>
+            <button id="open-search-btn" class="chip ripple-effect" aria-label="Search" style="padding:8px 12px;">
+                <span class="material-symbols-outlined" style="font-size:20px;">search</span>
             </button>
 
             <!-- Filter dropdown -->
             <div class="relative" id="filter-container">
-                <button id="filter-toggle-btn" class="chip ripple-effect selected">
-                    <span id="filter-label-icon" class="material-symbols-outlined">apps</span>
-                    <span id="filter-label-text" class="hidden sm:inline">All</span>
+                <button id="filter-toggle-btn" class="chip ripple-effect selected" style="padding:8px 12px; gap:4px;">
+                    <span id="filter-label-icon" class="material-symbols-outlined" style="font-size:20px;">apps</span>
+                    <span id="filter-label-text" class="text-sm font-semibold hidden sm:inline">All</span>
                 </button>
-                <div id="filter-menu" class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 rounded-xl shadow-xl p-2 z-50" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
+                <div id="filter-menu" class="hidden absolute top-full left-0 mt-2 w-52 rounded-xl shadow-xl p-2 z-50" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
                     <button class="menu-item" data-filter="all"><div><span class="material-symbols-outlined">apps</span><span>All</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-filter="1-star"><div><span class="material-symbols-outlined text-orange-400">filter_1</span><span>1 Star</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-filter="2-star"><div><span class="material-symbols-outlined text-slate-400">filter_2</span><span>2 Star</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-filter="3-star"><div><span class="material-symbols-outlined text-amber-400">filter_3</span><span>3 Star</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-filter="fusion"><div><span class="material-symbols-outlined text-fuchsia-400">filter_4</span><span>4 Star</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" id="dismissed-filter-btn" data-filter="dismissed"><div><span class="material-symbols-outlined">badge</span><span>Retired</span></div><span class="check-icon material-symbols-outlined">check</span></button>
-
                     <hr class="menu-divider">
                     <p class="px-3 py-1 text-xs font-bold uppercase tracking-wider" style="color: var(--on-surface-var);">Sort</p>
                     <button class="menu-item" data-sort="name"><div><span class="material-symbols-outlined">sort_by_alpha</span><span>Name (A–Z)</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-sort="date_desc"><div><span class="material-symbols-outlined">arrow_downward</span><span>Newest</span></div><span class="check-icon material-symbols-outlined">check</span></button>
                     <button class="menu-item" data-sort="date_asc"><div><span class="material-symbols-outlined">arrow_upward</span><span>Oldest</span></div><span class="check-icon material-symbols-outlined">check</span></button>
-
-                    <!-- AU section (populated dynamically) -->
-                    <div id="au-filter-section" class="hidden">
-                        <hr class="menu-divider">
-                        <p class="px-3 py-1 text-xs font-bold uppercase tracking-wider" style="color: var(--au);">
-                            <span class="material-symbols-outlined text-sm align-middle">auto_fix_high</span> Alt. Universes
-                        </p>
-                        <div id="au-filter-list"></div>
-                    </div>
                 </div>
             </div>
 
+            <!-- AU Dropdown -->
+            <div class="relative" id="au-container">
+                <button id="au-toggle-btn" class="chip ripple-effect hidden" style="padding:8px 12px; gap:4px;" aria-label="Alt. Universes">
+                    <span class="material-symbols-outlined" style="font-size:20px;">auto_fix_high</span>
+                    <span id="au-label-text" class="text-sm font-semibold hidden sm:inline">AU</span>
+                </button>
+                <div id="au-menu" class="hidden absolute top-full left-0 mt-2 w-56 rounded-xl shadow-xl p-2 z-50" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
+                    <div id="au-select-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div style="width:1px; height:28px; background:var(--outline-var); flex-shrink:0;"></div>
+
+        <!-- Right group: Zoom + Fit -->
+        <div class="flex items-center gap-2">
             <!-- Zoom controls -->
             <div class="flex items-center rounded-full overflow-hidden" style="border: 1px solid var(--outline-var); background-color: var(--surface-high);">
-                <button id="zoom-out-btn" class="p-2 ripple-effect transition-colors hover:bg-white/10" aria-label="Zoom out">
-                    <span class="material-symbols-outlined flex items-center">zoom_out</span>
+                <button id="zoom-out-btn" class="ripple-effect transition-colors hover:bg-white/10" style="padding:8px;" aria-label="Zoom out">
+                    <span class="material-symbols-outlined" style="font-size:20px;display:flex;">zoom_out</span>
                 </button>
-                <span id="size-label" class="px-3 text-sm font-bold border-x" style="border-color: var(--outline-var);">M</span>
-                <button id="zoom-in-btn" class="p-2 ripple-effect transition-colors hover:bg-white/10" aria-label="Zoom in">
-                    <span class="material-symbols-outlined flex items-center">zoom_in</span>
+                <span id="size-label" class="px-2 text-sm font-bold border-x" style="border-color: var(--outline-var);">M</span>
+                <button id="zoom-in-btn" class="ripple-effect transition-colors hover:bg-white/10" style="padding:8px;" aria-label="Zoom in">
+                    <span class="material-symbols-outlined" style="font-size:20px;display:flex;">zoom_in</span>
                 </button>
             </div>
 
             <!-- Fit to screen -->
-            <button id="fitToScreenBtn" class="chip ripple-effect" aria-label="Fit to screen mode">
-                <span class="material-symbols-outlined">auto_awesome_mosaic</span>
-                <span class="hidden sm:inline font-semibold">Fit</span>
+            <button id="fitToScreenBtn" class="chip ripple-effect" aria-label="Fit to screen mode" style="padding:8px 12px; gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:20px;">auto_awesome_mosaic</span>
+                <span class="hidden sm:inline text-sm font-semibold">Fit</span>
             </button>
+        </div>
     </div>
 
     <main id="character-grid"></main>
@@ -505,8 +537,8 @@ const state = {
     currentModalCharId: null,
     currentModalType: null,
     sortBy: 'name',
-    activeAuId: null,        // null = normal view; string = AU id
-    unlockedAuIds: new Set(), // AU ids that have been unlocked with password
+    activeAuId: null,         // null = normal; string = active AU id
+    unlockedAuIds: new Set(),
 };
 
 const sizeProfiles = [
@@ -551,12 +583,11 @@ const getCharacterImageUrlByStar = (charId, star, useAu = false) => {
     return char.evolutions?.find(e => e.star === star)?.imageUrl || '';
 };
 
-/** Returns the image URL for a given character card item respecting current AU. */
+/** Returns the AU image if active AU has one, else original */
 const resolveCardImage = (char) => {
     if (!state.activeAuId) return char.displayImageUrl || char.imageUrl || '';
     const au = char.auData?.[state.activeAuId];
     if (!au) return char.displayImageUrl || char.imageUrl || '';
-    // For fusions use fusionImageUrl, for 3★ use star3ImageUrl, else original
     if (char.isFusion) return au.fusionImageUrl || char.displayImageUrl || char.imageUrl || '';
     if (char.displayStar === 3) return au.star3ImageUrl || char.displayImageUrl || '';
     return char.displayImageUrl || char.imageUrl || '';
@@ -619,7 +650,7 @@ function _doRender() {
         dom.characterGrid.style.gridTemplateColumns = `repeat(auto-fit, minmax(${sizeProfiles[state.imageSizeIndex].minCardWidth}, 1fr))`;
     }
 
-    const visibleDismissed = dismissedCharacters.filter(c => c.type !== 'easterEgg');
+    const visibleDismissed = dismissedCharacters;
 
     const sortFn = (a, b) => {
         if (state.sortBy === 'date_desc') return (b.eklenmeTarihi?.toDate() || 0) - (a.eklenmeTarihi?.toDate() || 0);
@@ -667,9 +698,24 @@ function _doRender() {
         }
     }
 
-    // Active AU filter: show only entries that have this AU's image
+    // AU Only mode: filter to entries with AU data, show only their AU images (3★ for chars, fusion for fusions)
     if (state.activeAuId) {
         items = items.filter(item => hasAuEntry(item, state.activeAuId));
+        const auOnlyItems = [];
+        const seen = new Set();
+        items.forEach(item => {
+            if (item.isFusion) {
+                if (!seen.has(item.id)) {
+                    seen.add(item.id);
+                    const auImg = item.auData?.[state.activeAuId]?.fusionImageUrl;
+                    auOnlyItems.push({ ...item, displayStar: 4, displayImageUrl: auImg || item.imageUrl });
+                }
+            } else if (item.displayStar === 3) {
+                const auImg = item.auData?.[state.activeAuId]?.star3ImageUrl;
+                auOnlyItems.push({ ...item, displayImageUrl: auImg || item.displayImageUrl });
+            }
+        });
+        items = auOnlyItems;
     }
 
     const frag = document.createDocumentFragment();
@@ -687,23 +733,22 @@ function _buildCard(char, index) {
     const card = document.createElement('div');
     const isFusion   = !!char.isFusion;
     const isDismissed= !!char.isDismissed || (dismissedCharacters.some(d => d.id === char.id));
-    // EE cards are never shown in gallery anymore
     const hasReachableAu = state.activeAuId
         ? hasAuEntry(char, state.activeAuId)
         : hasReachableAuEntry(char);
 
     let cls = 'character-card';
-    if (isFusion)        cls += ' fusion-card';
-    if (isDismissed)     cls += ' dismissed-card';
-    if (hasReachableAu)  cls += ' has-au';
+    if (isFusion)       cls += ' fusion-card';
+    if (isDismissed)    cls += ' dismissed-card';
+    if (hasReachableAu) cls += ' has-au';
 
     card.className = cls;
     card.dataset.id = char.id;
     card.style.animationDelay = `${index * 35}ms`;
 
-    if (isFusion)      card.onclick = () => openFusionModal(char.id);
+    if (isFusion)         card.onclick = () => openFusionModal(char.id);
     else if (isDismissed) card.onclick = () => openCharacterModal(char.id, true);
-    else               card.onclick = () => openCharacterModal(char.id, false);
+    else                  card.onclick = () => openCharacterModal(char.id, false);
 
     const nameClass = (isFusion || isDismissed) ? 'font-fantastical' : '';
     const stars = isDismissed
@@ -714,7 +759,8 @@ function _buildCard(char, index) {
     let auBadgeHtml = '';
     if (state.activeAuId && hasAuEntry(char, state.activeAuId)) {
         const auDef = alternativeUniverses.find(a => a.id === state.activeAuId);
-        auBadgeHtml = `<div class="au-badge">${auDef ? auDef.name : 'AU'}</div>`;
+        const color = auDef?.color || '#64dcb4';
+        auBadgeHtml = `<div class="au-badge" style="border-color:${color};color:${color};">${auDef?.name || 'AU'}</div>`;
     } else if (!state.activeAuId) {
         const reachable = getReachableAus().filter(au => hasAuEntry(char, au.id));
         if (reachable.length > 0) {
@@ -726,11 +772,11 @@ function _buildCard(char, index) {
     }
 
     const resolvedImgUrl = resolveCardImage(char);
-
     let imageHtml;
     if (isFusion && char.imageUrl && char.previewUrl) {
-        const previewSrc = (state.activeAuId && char.auData?.[state.activeAuId]?.fusionImageUrl) || char.previewUrl;
-        const gifSrc     = (state.activeAuId && char.auData?.[state.activeAuId]?.fusionImageUrl) || char.imageUrl;
+        const auFusionImg = state.activeAuId ? char.auData?.[state.activeAuId]?.fusionImageUrl : null;
+        const previewSrc = auFusionImg || char.previewUrl;
+        const gifSrc     = auFusionImg || char.imageUrl;
         imageHtml = `<img src="${previewSrc}" data-gif-src="${gifSrc}" data-preview-src="${previewSrc}" alt="${char.name}" class="character-card-image">`;
     } else {
         imageHtml = `<img src="${resolvedImgUrl}" alt="${char.name}" class="character-card-image" loading="lazy">`;
@@ -747,38 +793,61 @@ function _buildCard(char, index) {
     return card;
 }
 
-// ─── AU filter section builder ────────────────────────────────────────────────
-function buildAuFilterSection() {
-    const section = document.getElementById('au-filter-section');
-    const list = document.getElementById('au-filter-list');
-    // Only show AUs that are reachable (not locked, or unlocked)
-    const visibleAus = alternativeUniverses.filter(au => isAuReachable(au));
-    if (!visibleAus.length) { section.classList.add('hidden'); return; }
-    section.classList.remove('hidden');
-    list.innerHTML = '';
+// ─── AU dropdown builder ──────────────────────────────────────────────────────
+function buildAuDropdown() {
+    const toggleBtn  = document.getElementById('au-toggle-btn');
+    const selectList = document.getElementById('au-select-list');
+    const auLabelText  = document.getElementById('au-label-text');
+    const auToggleIcon = toggleBtn?.querySelector('.material-symbols-outlined');
 
-    // "Normal View" reset
-    const resetItem = document.createElement('div');
-    resetItem.className = `au-menu-item ${!state.activeAuId ? 'active' : ''}`;
-    resetItem.innerHTML = `<div class="au-dot" style="background:transparent;"></div><span>Normal View</span>`;
-    resetItem.onclick = () => { state.activeAuId = null; _applyAuMode(); dom.filterMenu.classList.add('hidden'); };
-    list.appendChild(resetItem);
+    const visibleAus = alternativeUniverses.filter(au => isAuReachable(au));
+    if (!visibleAus.length) { toggleBtn.classList.add('hidden'); return; }
+    toggleBtn.classList.remove('hidden');
+
+    selectList.innerHTML = '';
+
+    // "None" option
+    const noneItem = document.createElement('div');
+    noneItem.className = `au-menu-item ${!state.activeAuId ? 'active' : ''}`;
+    noneItem.innerHTML = `<div class="au-dot" style="background:transparent;border-color:var(--outline-var);"></div><span style="flex:1;">None</span>${!state.activeAuId ? '<span class="material-symbols-outlined" style="font-size:16px;">check</span>' : ''}`;
+    noneItem.onclick = () => { state.activeAuId = null; _applyAuMode(); document.getElementById('au-menu').classList.add('hidden'); };
+    selectList.appendChild(noneItem);
 
     visibleAus.forEach(au => {
+        const isSelected = state.activeAuId === au.id;
         const item = document.createElement('div');
-        item.className = `au-menu-item ${state.activeAuId === au.id ? 'active' : ''}`;
+        item.className = `au-menu-item ${isSelected ? 'active' : ''}`;
+        item.style.color = isSelected ? (au.color || 'var(--au)') : '';
         item.innerHTML = `
             <div class="au-dot" style="background:${au.color||'#64dcb4'};"></div>
-            <span class="material-symbols-outlined" style="font-size:16px; flex-shrink:0; color:${au.color||'#64dcb4'}">${au.icon||'auto_fix_high'}</span>
-            <span>${au.name}</span>
+            <span class="material-symbols-outlined" style="font-size:16px;flex-shrink:0;color:${au.color||'#64dcb4'}">${au.icon||'auto_fix_high'}</span>
+            <span style="flex:1;">${au.name}</span>
+            ${isSelected ? `<span class="material-symbols-outlined" style="font-size:16px;color:${au.color||'#64dcb4'};">check</span>` : ''}
         `;
         item.onclick = () => {
-            state.activeAuId = (state.activeAuId === au.id) ? null : au.id;
+            state.activeAuId = isSelected ? null : au.id;
             _applyAuMode();
-            dom.filterMenu.classList.add('hidden');
+            document.getElementById('au-menu').classList.add('hidden');
         };
-        list.appendChild(item);
+        selectList.appendChild(item);
     });
+
+    // Update toggle button appearance
+    if (state.activeAuId) {
+        const auDef = alternativeUniverses.find(a => a.id === state.activeAuId);
+        const color = auDef?.color || '#64dcb4';
+        auLabelText.textContent = auDef?.name || 'AU';
+        if (auToggleIcon && auDef?.icon) auToggleIcon.textContent = auDef.icon;
+        toggleBtn.style.borderColor = color + '99';
+        toggleBtn.style.color = color;
+        toggleBtn.classList.add('au-selected');
+    } else {
+        auLabelText.textContent = 'AU';
+        if (auToggleIcon) auToggleIcon.textContent = 'auto_fix_high';
+        toggleBtn.style.borderColor = '';
+        toggleBtn.style.color = '';
+        toggleBtn.classList.remove('au-selected');
+    }
 }
 
 // ─── Secret unlock for locked AUs (5 clicks on gallery title) ────────────────
@@ -797,7 +866,7 @@ function setupSecretUnlock() {
             if (pw === null) return;
             if (pw === '1234') {
                 lockedAus.forEach(au => state.unlockedAuIds.add(au.id));
-                buildAuFilterSection();
+                buildAuDropdown();
                 renderCharacters();
             }
         }
@@ -805,17 +874,126 @@ function setupSecretUnlock() {
 }
 
 function _applyAuMode() {
-    const isAu = !!state.activeAuId;
-    document.body.classList.toggle('au-mode', isAu);
-    const banner = document.getElementById('au-mode-banner');
-    if (isAu) {
-        const def = alternativeUniverses.find(a => a.id === state.activeAuId);
+    document.body.classList.toggle('au-mode', !!state.activeAuId);
+    const banner     = document.getElementById('au-mode-banner');
+    const auToggleBtn = document.getElementById('au-toggle-btn');
+
+    document.getElementById('au-dynamic-style')?.remove();
+
+    if (state.activeAuId) {
+        const def  = alternativeUniverses.find(a => a.id === state.activeAuId);
+        const hex  = def?.color || '#64dcb4';
         document.getElementById('au-banner-name').textContent = def ? def.name : state.activeAuId;
         banner.classList.add('visible');
+
+        // Parse hex → rgb
+        const h = hex.replace('#','');
+        const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+
+        // Derive a second accent by rotating hue ~60°
+        const toHsl = (r,g,b) => { r/=255;g/=255;b/=255; const max=Math.max(r,g,b),min=Math.min(r,g,b); let h,s,l=(max+min)/2; if(max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}h/=6;} return [h*360,s*100,l*100]; };
+        const hslToHex = (h,s,l) => { s/=100;l/=100; const a=s*Math.min(l,1-l); const f=n=>{const k=(n+h/30)%12; const color=l-a*Math.max(Math.min(k-3,9-k,1),-1); return Math.round(255*color).toString(16).padStart(2,'0'); }; return `#${f(0)}${f(8)}${f(4)}`; };
+        const [hh,hs,hl] = toHsl(r,g,b);
+        const accent2 = hslToHex((hh+60)%360, hs, Math.min(hl+10,90));
+        const accent3 = hslToHex((hh+180)%360, hs*0.6, Math.min(hl+5,80));
+        const containerHex = hslToHex(hh, hs*0.8, Math.max(hl*0.25, 8));
+        const onContainerHex = hslToHex(hh, hs*0.5, Math.min(hl+45, 92));
+
+        const styleEl = document.createElement('style');
+        styleEl.id = 'au-dynamic-style';
+        styleEl.textContent = `
+            body.au-theme-active {
+                --primary-rgb: ${r}, ${g}, ${b};
+                --primary: ${hex};
+                --on-primary: #050f09;
+                --primary-container: ${containerHex};
+                --on-primary-container: ${onContainerHex};
+                --au-rgb: ${r}, ${g}, ${b};
+                --au: ${hex};
+                --au-container: ${containerHex};
+                --on-au-container: ${onContainerHex};
+            }
+            /* Deep background aurora with AU colors */
+            body.au-theme-active::before {
+                background:
+                    radial-gradient(ellipse at 10% 20%, ${hex}30 0%, transparent 45%),
+                    radial-gradient(ellipse at 90% 75%, ${accent2}22 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 100%, ${accent3}18 0%, transparent 40%);
+                animation: aurora 18s infinite alternate ease-in-out, au-pulse 6s infinite alternate ease-in-out;
+            }
+            @keyframes au-pulse {
+                0%   { opacity: 0.85; }
+                50%  { opacity: 1; }
+                100% { opacity: 0.9; }
+            }
+            /* Control panel border glow */
+            body.au-theme-active .control-panel {
+                border-color: ${hex}44;
+                box-shadow: 0 0 24px ${hex}18, 0 0 0 1px ${hex}22;
+                transition: border-color 0.6s ease, box-shadow 0.6s ease;
+            }
+            /* Card hover glow */
+            body.au-theme-active .character-card:hover {
+                border-color: ${hex}66 !important;
+                box-shadow: 0 12px 32px ${hex}28, 0 0 0 1px ${hex}33 !important;
+            }
+            /* Selected chip */
+            body.au-theme-active .chip.selected {
+                background-color: ${hex};
+                border-color: ${hex};
+                box-shadow: 0 0 12px ${hex}55;
+            }
+            /* Scrollbar */
+            body.au-theme-active .m3-dialog-content::-webkit-scrollbar-thumb { background-color: ${hex}88; }
+            /* Modal border glow */
+            body.au-theme-active .m3-dialog {
+                border-color: ${hex}44;
+                box-shadow: 0 8px 48px ${hex}22, 0 0 0 1px ${hex}22;
+            }
+            /* Sparkle particles */
+            body.au-theme-active::after {
+                content: '';
+                position: fixed; inset: 0; pointer-events: none; z-index: 0;
+                background-image:
+                    radial-gradient(circle, ${hex}cc 1px, transparent 1px),
+                    radial-gradient(circle, ${accent2}99 1px, transparent 1px),
+                    radial-gradient(circle, ${hex}88 1.5px, transparent 1.5px);
+                background-size: 180px 180px, 260px 260px, 340px 340px;
+                background-position: 20px 40px, 90px 130px, 60px 200px;
+                animation: sparkle-drift 12s infinite linear;
+                opacity: 0.35;
+            }
+            @keyframes sparkle-drift {
+                0%   { transform: translate(0, 0)   rotate(0deg); }
+                33%  { transform: translate(8px, -12px) rotate(3deg); }
+                66%  { transform: translate(-6px, 8px) rotate(-2deg); }
+                100% { transform: translate(0, 0)   rotate(0deg); }
+            }
+            /* Banner */
+            #au-mode-banner {
+                background: linear-gradient(90deg, ${hex}44 0%, ${accent2}22 60%, ${hex}18 100%) !important;
+                border-color: ${hex}77 !important;
+                color: ${hex} !important;
+                box-shadow: 0 0 20px ${hex}22;
+            }
+            /* Gallery title glow */
+            body.au-theme-active #gallery-title {
+                color: ${hex} !important;
+                text-shadow: 0 0 30px ${hex}66, 0 0 60px ${hex}33;
+            }
+            /* Search input focus */
+            body.au-theme-active #search-input:focus { border-color: ${hex} !important; box-shadow: 0 0 0 3px ${hex}33; }
+        `;
+        document.head.appendChild(styleEl);
+        document.body.classList.add('au-theme-active');
+
     } else {
         banner.classList.remove('visible');
+        document.body.classList.remove('au-theme-active');
+        if (auToggleBtn) { auToggleBtn.style.borderColor = ''; auToggleBtn.style.color = ''; }
     }
-    buildAuFilterSection();
+
+    buildAuDropdown();
     updateUI();
     renderCharacters();
 }
@@ -840,16 +1018,9 @@ function _updateMenuSelection() {
         const icon = active.querySelector('div > .material-symbols-outlined')?.textContent || 'apps';
         const text = active.querySelector('div > span:last-child')?.textContent || 'All';
         dom.filterIcon.textContent = icon;
-        dom.filterText.textContent = state.activeAuId
-            ? (alternativeUniverses.find(a => a.id === state.activeAuId)?.name || 'AU') + ' · ' + text
-            : text;
+        dom.filterText.textContent = text;
         dom.filterToggleBtn.classList.toggle('dismissed-selected', state.galleryMode === 'dismissed');
-        dom.filterToggleBtn.classList.toggle('au-selected', !!state.activeAuId);
-        if (!state.activeAuId && state.galleryMode !== 'dismissed') {
-            dom.filterToggleBtn.classList.add('selected');
-        } else if (!state.activeAuId) {
-            dom.filterToggleBtn.classList.remove('selected');
-        }
+        dom.filterToggleBtn.classList.toggle('selected', state.galleryMode !== 'dismissed');
     }
 }
 
@@ -916,43 +1087,77 @@ function openCharacterModal(charId, isDismissed = false) {
     m.evolutions.style.gridTemplateColumns = `repeat(auto-fit, ${sizeProfiles[state.imageSizeIndex].minCardWidth})`;
     m.evolutions.innerHTML = '';
 
-    // ── Original evo cards (always show originals) ──
-    const allEvos = [{ star: 1, imageUrl: char.imageUrl }, ...(char.evolutions || [])];
-    allEvos.forEach(evo => {
-        const div = document.createElement('div');
-        div.className = 'flex flex-col items-center p-3 rounded-2xl cursor-pointer transition-colors hover:bg-[var(--surface-high)]';
-        div.style.backgroundColor = 'var(--surface)';
-        const wrap = document.createElement('div');
-        wrap.style.width = sizeProfiles[state.imageSizeIndex].minCardWidth;
-        wrap.innerHTML = `<img src="${evo.imageUrl || char.imageUrl}" alt="${char.name} ${evo.star}★" class="w-full h-auto object-contain rounded-xl mb-2 cursor-zoom-in" onclick="enlargeImage(this.src)">`;
-        const p = document.createElement('p');
-        p.className = 'text-lg font-medium';
-        p.innerHTML = getStarEmojis(false, isDismissed, evo.star);
-        div.appendChild(wrap); div.appendChild(p);
-        m.evolutions.appendChild(div);
-    });
-
-    // ── AU cards: one per reachable AU that has a 3★ entry (hidden by default) ──
+    const isAuOnlyMode = !!state.activeAuId;
     const reachableAusWithEntry = getReachableAus().filter(au => char.auData?.[au.id]?.star3ImageUrl);
-    reachableAusWithEntry.forEach(au => {
-        const auEntry = char.auData[au.id];
-        const div = document.createElement('div');
-        div.className = 'flex flex-col items-center p-3 rounded-2xl au-evo-card modal-au-card';
-        div.dataset.auId = au.id;
-        div.style.cssText = `border-color: ${au.color||'#64dcb4'}88; display: none;`;
-        const wrap = document.createElement('div');
-        wrap.style.width = sizeProfiles[state.imageSizeIndex].minCardWidth;
-        wrap.innerHTML = `<img src="${auEntry.star3ImageUrl}" alt="${char.name} ${au.name}" class="w-full h-auto object-contain rounded-xl mb-2 cursor-zoom-in" onclick="enlargeImage(this.src)">`;
-        const p = document.createElement('p');
-        p.className = 'text-sm font-bold flex items-center gap-1';
-        p.style.color = au.color || 'var(--au)';
-        p.innerHTML = `<span class="material-symbols-outlined" style="font-size:15px;">${au.icon||'auto_fix_high'}</span>${au.name}`;
-        div.appendChild(wrap); div.appendChild(p);
-        m.evolutions.appendChild(div);
-    });
 
-    // ── AU icon buttons in header: toggle visibility of that AU's card ──
-    _buildModalAuBtns('char-modal-header-btns', reachableAusWithEntry, '.modal-au-card');
+    if (isAuOnlyMode) {
+        // AU Only mode: show AU image + 3★ original side by side
+        const auDef  = alternativeUniverses.find(a => a.id === state.activeAuId);
+        const auEntry = char.auData?.[state.activeAuId];
+        const star3Img = char.evolutions?.find(e => e.star === 3)?.imageUrl || char.imageUrl;
+        const w = sizeProfiles[state.imageSizeIndex].minCardWidth;
+        const color = auDef?.color || '#64dcb4';
+
+        const makeCard = (imgSrc, labelHtml, cardColor) => {
+            const div = document.createElement('div');
+            div.className = `flex flex-col items-center p-3 rounded-2xl ${cardColor ? 'au-evo-card' : ''}`;
+            div.style.cssText = cardColor
+                ? `border-color:${cardColor}88; background:linear-gradient(135deg,${cardColor}18 0%,rgba(32,31,37,0.95) 100%);`
+                : 'background-color:var(--surface);';
+            div.innerHTML = `
+                <div style="width:${w}"><img src="${imgSrc}" alt="${char.name}" class="w-full h-auto object-contain rounded-xl mb-2 cursor-zoom-in" onclick="enlargeImage(this.src)"></div>
+                <p class="text-sm font-bold flex items-center gap-1" style="color:${cardColor||'var(--on-surface-var)'};">${labelHtml}</p>
+            `;
+            return div;
+        };
+
+        if (auEntry?.star3ImageUrl) {
+            m.evolutions.appendChild(makeCard(auEntry.star3ImageUrl,
+                `<span class="material-symbols-outlined" style="font-size:15px;">${auDef?.icon||'auto_fix_high'}</span>${auDef?.name||'AU'} Version`,
+                color));
+        }
+        m.evolutions.appendChild(makeCard(star3Img,
+            `<span class="material-symbols-outlined" style="font-size:15px;">star</span>3★ Original`, null));
+
+        document.getElementById('char-modal-header-btns').querySelectorAll('.modal-au-btn').forEach(b => b.remove());
+
+    } else {
+        // Normal mode: show all evolutions
+        const allEvos = [{ star: 1, imageUrl: char.imageUrl }, ...(char.evolutions || [])];
+        allEvos.forEach(evo => {
+            const div = document.createElement('div');
+            div.className = 'flex flex-col items-center p-3 rounded-2xl cursor-pointer transition-colors hover:bg-[var(--surface-high)]';
+            div.style.backgroundColor = 'var(--surface)';
+            const wrap = document.createElement('div');
+            wrap.style.width = sizeProfiles[state.imageSizeIndex].minCardWidth;
+            wrap.innerHTML = `<img src="${evo.imageUrl || char.imageUrl}" alt="${char.name} ${evo.star}★" class="w-full h-auto object-contain rounded-xl mb-2 cursor-zoom-in" onclick="enlargeImage(this.src)">`;
+            const p = document.createElement('p');
+            p.className = 'text-lg font-medium';
+            p.innerHTML = getStarEmojis(false, isDismissed, evo.star);
+            div.appendChild(wrap); div.appendChild(p);
+            m.evolutions.appendChild(div);
+        });
+
+        // AU cards (hidden by default, toggled via header buttons)
+        reachableAusWithEntry.forEach(au => {
+            const auEntry = char.auData[au.id];
+            const div = document.createElement('div');
+            div.className = 'flex flex-col items-center p-3 rounded-2xl au-evo-card modal-au-card';
+            div.dataset.auId = au.id;
+            div.style.cssText = `border-color:${au.color||'#64dcb4'}88; display:none;`;
+            const wrap = document.createElement('div');
+            wrap.style.width = sizeProfiles[state.imageSizeIndex].minCardWidth;
+            wrap.innerHTML = `<img src="${auEntry.star3ImageUrl}" alt="${char.name} ${au.name}" class="w-full h-auto object-contain rounded-xl mb-2 cursor-zoom-in" onclick="enlargeImage(this.src)">`;
+            const p = document.createElement('p');
+            p.className = 'text-sm font-bold flex items-center gap-1';
+            p.style.color = au.color || 'var(--au)';
+            p.innerHTML = `<span class="material-symbols-outlined" style="font-size:15px;">${au.icon||'auto_fix_high'}</span>${au.name}`;
+            div.appendChild(wrap); div.appendChild(p);
+            m.evolutions.appendChild(div);
+        });
+
+        _buildModalAuBtns('char-modal-header-btns', reachableAusWithEntry, '.modal-au-card');
+    }
 
     // Fusions
     const fusions = characters.filter(f => f.isFusion && f.fusionPartners?.includes(char.id));
@@ -983,51 +1188,82 @@ function openFusionModal(fusionId) {
     const w = sizeProfiles[state.imageSizeIndex].minCardWidth;
 
     m.name.textContent = fusion.name;
-    m.img.src = fusion.imageUrl || '';
-    m.img.setAttribute('onclick', `enlargeImage('${fusion.imageUrl||''}')`);
-    m.star.innerHTML = getStarEmojis(true, false, 4);
     m.imgWrap.style.width = w;
-
-    const getOriginal3Star = (charId) => {
-        const c = characters.find(x => x.id === charId && !x.isFusion)
-               || dismissedCharacters.find(x => x.id === charId && !x.isFusion);
-        return c ? (c.evolutions?.find(e => e.star === 3)?.imageUrl || c.imageUrl || '') : '';
-    };
-    const [p1, p2] = (fusion.fusionPartners || []).map(id =>
-        characters.find(c => c.id === id) || dismissedCharacters.find(c => c.id === id));
-    const setPartner = (side, pChar) => {
-        if (!pChar) return;
-        side.img.src = getOriginal3Star(pChar.id);
-        side.container.style.width = `${parseInt(w) * 0.75}px`;
-        side.name.textContent = pChar.name;
-        side.container.dataset.characterId = pChar.id;
-        side.star.innerHTML = getStarEmojis(false, false, 3);
-    };
-    setPartner(m.left, p1);
-    setPartner(m.right, p2);
-
     // ── Clean old AU cards ──
     document.querySelectorAll('.fusion-au-extra-card').forEach(el => el.remove());
 
-    // ── AU cards: one per reachable AU with fusionImageUrl (hidden by default) ──
+    const isAuOnlyMode = !!state.activeAuId;
     const reachableAusWithEntry = getReachableAus().filter(au => fusion.auData?.[au.id]?.fusionImageUrl);
-    reachableAusWithEntry.forEach(au => {
-        const auEntry = fusion.auData[au.id];
-        const auCard = document.createElement('div');
-        auCard.className = `fusion-au-extra-card flex flex-col items-center text-center au-fusion-card rounded-2xl p-4`;
-        auCard.dataset.auId = au.id;
-        auCard.style.cssText = `width:${w}; border-color:${au.color||'#64dcb4'}88; display:none;`;
-        auCard.innerHTML = `
-            <p class="text-sm font-bold mb-2 flex items-center gap-1" style="color:${au.color||'var(--au)'}">
-                <span class="material-symbols-outlined" style="font-size:15px;">${au.icon||'auto_fix_high'}</span>${au.name}
-            </p>
-            <img src="${auEntry.fusionImageUrl}" alt="${fusion.name} ${au.name}" class="w-full h-auto object-contain rounded-xl cursor-zoom-in" onclick="enlargeImage(this.src)">
-        `;
-        m.imgWrap.insertAdjacentElement('afterend', auCard);
-    });
 
-    // ── AU icon buttons in header: toggle visibility ──
-    _buildModalAuBtns('fusion-modal-header-btns', reachableAusWithEntry, '.fusion-au-extra-card');
+    if (isAuOnlyMode) {
+        // AU Only mode: AU image main + original as extra card
+        const auDef  = alternativeUniverses.find(a => a.id === state.activeAuId);
+        const auImg  = fusion.auData?.[state.activeAuId]?.fusionImageUrl;
+        const color  = auDef?.color || '#64dcb4';
+
+        m.img.src = auImg || fusion.imageUrl || '';
+        m.img.setAttribute('onclick', `enlargeImage('${m.img.src}')`);
+        m.star.innerHTML = auDef
+            ? `<span class="text-xs font-bold flex items-center gap-1" style="color:${color}"><span class="material-symbols-outlined" style="font-size:14px;">${auDef.icon||'auto_fix_high'}</span>${auDef.name} Version</span>`
+            : getStarEmojis(true, false, 4);
+
+        // Original as extra card
+        const origCard = document.createElement('div');
+        origCard.className = 'fusion-au-extra-card flex flex-col items-center text-center rounded-2xl p-4';
+        origCard.style.cssText = `width:${w}; border:1px solid var(--outline-var); display:block;`;
+        origCard.innerHTML = `
+            <p class="text-xs font-bold mb-2 flex items-center gap-1 justify-center" style="color:var(--on-surface-var);">
+                <span class="material-symbols-outlined" style="font-size:14px;">star</span>Original
+            </p>
+            <img src="${fusion.imageUrl||''}" alt="${fusion.name}" class="w-full h-auto object-contain rounded-xl cursor-zoom-in" onclick="enlargeImage(this.src)">
+        `;
+        m.imgWrap.insertAdjacentElement('afterend', origCard);
+
+        m.left.container.style.display = 'none';
+        m.right.container.style.display = 'none';
+        document.getElementById('fusion-modal-header-btns').querySelectorAll('.modal-au-btn').forEach(b => b.remove());
+    } else {
+        // Normal mode
+        m.img.src = fusion.imageUrl || '';
+        m.img.setAttribute('onclick', `enlargeImage('${fusion.imageUrl||''}')`);
+        m.star.innerHTML = getStarEmojis(true, false, 4);
+        m.left.container.style.display = '';
+        m.right.container.style.display = '';
+
+        const getOriginal3Star = (charId) => {
+            const c = characters.find(x => x.id === charId && !x.isFusion)
+                   || dismissedCharacters.find(x => x.id === charId && !x.isFusion);
+            return c ? (c.evolutions?.find(e => e.star === 3)?.imageUrl || c.imageUrl || '') : '';
+        };
+        const [p1, p2] = (fusion.fusionPartners || []).map(id =>
+            characters.find(c => c.id === id) || dismissedCharacters.find(c => c.id === id));
+        const setPartner = (side, pChar) => {
+            if (!pChar) return;
+            side.img.src = getOriginal3Star(pChar.id);
+            side.container.style.width = `${parseInt(w) * 0.75}px`;
+            side.name.textContent = pChar.name;
+            side.container.dataset.characterId = pChar.id;
+            side.star.innerHTML = getStarEmojis(false, false, 3);
+        };
+        setPartner(m.left, p1);
+        setPartner(m.right, p2);
+
+        reachableAusWithEntry.forEach(au => {
+            const auEntry = fusion.auData[au.id];
+            const auCard = document.createElement('div');
+            auCard.className = 'fusion-au-extra-card flex flex-col items-center text-center au-fusion-card rounded-2xl p-4';
+            auCard.dataset.auId = au.id;
+            auCard.style.cssText = `width:${w}; border-color:${au.color||'#64dcb4'}88; display:none;`;
+            auCard.innerHTML = `
+                <p class="text-sm font-bold mb-2 flex items-center gap-1" style="color:${au.color||'var(--au)'}">
+                    <span class="material-symbols-outlined" style="font-size:15px;">${au.icon||'auto_fix_high'}</span>${au.name}
+                </p>
+                <img src="${auEntry.fusionImageUrl}" alt="${fusion.name} ${au.name}" class="w-full h-auto object-contain rounded-xl cursor-zoom-in" onclick="enlargeImage(this.src)">
+            `;
+            m.imgWrap.insertAdjacentElement('afterend', auCard);
+        });
+        _buildModalAuBtns('fusion-modal-header-btns', reachableAusWithEntry, '.fusion-au-extra-card');
+    }
 
     openModal(m.el, m.content);
     updateModalNav(fusionId, 'fusion');
@@ -1053,8 +1289,7 @@ function renderSearchResults() {
     const term = dom.searchModal.input.value.toLowerCase().trim();
     if (!term) { ph.textContent = 'Type a name or ID above to search.'; ph.classList.remove('hidden'); return; }
 
-    // Search pool: active characters + dismissed (no EEs shown)
-    const pool = [...characters, ...dismissedCharacters.filter(c => c.type !== 'easterEgg')];
+    const pool = [...characters, ...dismissedCharacters];
 
     const results = [];
     pool.forEach(char => {
@@ -1109,18 +1344,52 @@ function updateModalNav(id, type) {
     state.currentModalType = type;
 
     const isDis = dismissedCharacters.some(c => c.id === id);
-    let nav;
-    if (isDis) {
+    const pool = isDis ? dismissedCharacters : characters;
+
+    // Build nav list matching current gallery filter
+    let nav = [];
+    const sortFn = (a, b) => {
+        if (state.sortBy === 'date_desc') return (b.eklenmeTarihi?.toDate() || 0) - (a.eklenmeTarihi?.toDate() || 0);
+        if (state.sortBy === 'date_asc')  return (a.eklenmeTarihi?.toDate() || 0) - (b.eklenmeTarihi?.toDate() || 0);
+        return a.name.localeCompare(b.name, 'en');
+    };
+
+    const mode = state.galleryMode;
+
+    if (mode === 'fusion') {
+        nav = pool.filter(c => c.isFusion).sort(sortFn);
+    } else if (mode === 'all' || mode === 'dismissed') {
         nav = [
-            ...dismissedCharacters.filter(c => !c.isFusion && c.type !== 'easterEgg').sort((a,b)=>a.name.localeCompare(b.name,'en')),
-            ...dismissedCharacters.filter(c => c.isFusion).sort((a,b)=>a.name.localeCompare(b.name,'en')),
+            ...pool.filter(c => !c.isFusion).sort(sortFn),
+            ...pool.filter(c => c.isFusion).sort(sortFn),
+        ];
+    } else if (mode === 'reachable-au') {
+        nav = [
+            ...pool.filter(c => !c.isFusion && hasReachableAuEntry(c)).sort(sortFn),
+            ...pool.filter(c => c.isFusion && hasReachableAuEntry(c)).sort(sortFn),
         ];
     } else {
-        nav = [
-            ...characters.filter(c => !c.isFusion).sort((a,b)=>a.name.localeCompare(b.name,'en')),
-            ...characters.filter(c => c.isFusion).sort((a,b)=>a.name.localeCompare(b.name,'en')),
-        ];
+        const starFilter = parseInt(mode);
+        if (!isNaN(starFilter)) {
+            if (starFilter === 4) {
+                nav = pool.filter(c => c.isFusion).sort(sortFn);
+            } else {
+                nav = pool.filter(c => !c.isFusion).sort(sortFn);
+            }
+        } else {
+            // fallback: all
+            nav = [...pool.filter(c => !c.isFusion).sort(sortFn), ...pool.filter(c => c.isFusion).sort(sortFn)];
+        }
     }
+
+    // Filter by active AU
+    if (state.activeAuId) {
+        nav = nav.filter(c => hasAuEntry(c, state.activeAuId));
+    }
+
+    // Deduplicate by id
+    const seen = new Set();
+    nav = nav.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
 
     const idx = nav.findIndex(i => i.id === id);
     const prev = idx > 0 ? nav[idx - 1] : null;
@@ -1242,7 +1511,7 @@ async function initApp() {
         });
 
         // Event listeners
-        dom.filterToggleBtn.addEventListener('click', e => { e.stopPropagation(); dom.filterMenu.classList.toggle('hidden'); });
+        dom.filterToggleBtn.addEventListener('click', e => { e.stopPropagation(); dom.filterMenu.classList.toggle('hidden'); document.getElementById('au-menu').classList.add('hidden'); });
         dom.filterMenu.addEventListener('click', e => {
             const btn = e.target.closest('.menu-item');
             if (!btn) return;
@@ -1251,11 +1520,20 @@ async function initApp() {
             dom.filterMenu.classList.add('hidden');
             updateUI(); renderCharacters();
         });
+
+        // AU dropdown
+        const auToggleBtn = document.getElementById('au-toggle-btn');
+        const auMenu = document.getElementById('au-menu');
+        auToggleBtn.addEventListener('click', e => { e.stopPropagation(); auMenu.classList.toggle('hidden'); dom.filterMenu.classList.add('hidden'); });
+
         document.getElementById('open-search-btn').addEventListener('click', openSearchModal);
         dom.searchModal.input.addEventListener('input', renderSearchResults);
         window.addEventListener('click', e => {
             if (!dom.filterMenu.classList.contains('hidden') && !e.target.closest('#filter-container')) {
                 dom.filterMenu.classList.add('hidden');
+            }
+            if (!auMenu.classList.contains('hidden') && !e.target.closest('#au-container')) {
+                auMenu.classList.add('hidden');
             }
         });
         dom.zoomInBtn.addEventListener('click', () => { if (state.imageSizeIndex < sizeProfiles.length - 1) { state.imageSizeIndex++; updateUI(); renderCharacters(); }});
@@ -1263,7 +1541,7 @@ async function initApp() {
         dom.fitScreenBtn.addEventListener('click', () => { state.isFitToScreenMode = !state.isFitToScreenMode; updateUI(); renderCharacters(); });
         document.getElementById('au-banner-exit').addEventListener('click', () => { state.activeAuId = null; _applyAuMode(); });
 
-        buildAuFilterSection();
+        buildAuDropdown();
         setupSecretUnlock();
         updateUI();
         renderCharacters();
