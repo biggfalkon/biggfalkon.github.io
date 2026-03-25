@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AU Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <style>
+        :root {
+            --primary-rgb: 189,179,255;
+            --primary: rgb(var(--primary-rgb));
+            --on-primary: #2d235c;
+            --primary-container: #443a74;
+            --bg: #131318;
+            --on-bg: #e5e1e6;
+            --surface: #1a191f;
+            --surface-container: #201f25;
+            --surface-high: #2a2830;
+            --on-surface: #e5e1e6;
+            --on-surface-var: #c8c4d0;
+            --outline-var: #48454e;
+            --au-rgb: 100,220,180;
+            --au: rgb(var(--au-rgb));
+            --au-container: #0a4f3a;
+            --on-au-container: #a0f5d8;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Manrope', sans-serif; background-color: var(--bg); color: var(--on-bg); min-height: 100vh; }
+        body::before {
+            content: ''; position: fixed; inset: 0; z-index: -1;
+            background:
+                radial-gradient(circle at 15% 25%, rgba(var(--primary-rgb),.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 65%, rgba(100,220,180,.08) 0%, transparent 45%);
+        }
+
+        /* Login */
+        #login-wall { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; background: var(--bg); }
+        .login-box { width: 100%; max-width: 360px; padding: 2rem; background: var(--surface); border: 1px solid var(--outline-var); border-radius: 20px; }
+
+        /* Form inputs */
+        .form-input {
+            background: var(--surface-high); border: 1px solid var(--outline-var);
+            color: var(--on-surface); border-radius: 8px; padding: 10px 12px; width: 100%;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb),.18); outline: none; }
+
+        /* Buttons */
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 99px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: all .2s; font-family: inherit; font-size: .9rem; }
+        .btn:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: var(--on-primary); }
+        .btn-secondary { background: var(--surface-high); color: var(--on-surface-var); border-color: var(--outline-var); }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); transform: none; }
+
+        /* AU pill selectors */
+        .au-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+            border-radius: 99px; font-size: .82rem; font-weight: 700; cursor: pointer;
+            border: 2px solid transparent; transition: all .2s; white-space: nowrap;
+        }
+        .au-pill:hover { filter: brightness(1.1); }
+        .au-pill.active { box-shadow: 0 0 0 2px rgba(255,255,255,.15), 0 4px 14px rgba(0,0,0,.3); }
+
+        /* Entry cards */
+        .entry-card {
+            display: flex; align-items: center; gap: .875rem; padding: .875rem 1rem;
+            background: var(--surface-container); border: 1px solid var(--outline-var);
+            border-radius: 14px; transition: all .2s;
+        }
+        .entry-card:hover { background: var(--surface-high); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+        .entry-card img { object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+
+        /* Section panels */
+        .panel {
+            background: rgba(26,25,31,.75); backdrop-filter: blur(12px);
+            border: 1px solid rgba(146,143,153,.18); border-radius: 18px; padding: 1.25rem;
+        }
+
+        /* Prompt modal */
+        #prompt-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.65); backdrop-filter: blur(5px); opacity: 0; pointer-events: none; transition: opacity .25s; }
+        #prompt-modal.visible { opacity: 1; pointer-events: auto; }
+        #prompt-modal-box { background: var(--surface-container); border-radius: 20px; padding: 1.75rem; width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 12px 36px rgba(0,0,0,.4); transform: scale(.97); transition: transform .25s; }
+        #prompt-modal.visible #prompt-modal-box { transform: scale(1); }
+        #prompt-modal-body { overflow-y: auto; flex: 1; }
+        #prompt-modal-body::-webkit-scrollbar { width: 5px; }
+        #prompt-modal-body::-webkit-scrollbar-thumb { background: var(--outline-var); border-radius: 4px; }
+        .prompt-block { background: rgba(0,0,0,.25); padding: .875rem; border-radius: 10px; border: 1px solid var(--outline-var); margin-bottom: .875rem; }
+        .prompt-label { font-size: .78rem; font-weight: 700; color: var(--on-surface-var); margin-bottom: .35rem; }
+        .prompt-text { font-size: .82rem; font-family: ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; color: var(--on-bg); line-height: 1.55; }
+
+        /* Tabs inside AU view */
+        .tab-btn { padding: 8px 18px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: .85rem; border: 1px solid transparent; border-bottom: none; transition: all .2s; color: var(--on-surface-var); cursor: pointer; background: transparent; }
+        .tab-btn.active { background: var(--surface-container); color: var(--primary); border-color: var(--outline-var); border-bottom-color: var(--surface-container); }
+
+        /* Scrollbar panel */
+        .scroll-panel { overflow-y: auto; max-height: calc(100vh - 340px); }
+        .scroll-panel::-webkit-scrollbar { width: 5px; }
+        .scroll-panel::-webkit-scrollbar-thumb { background: var(--outline-var); border-radius: 4px; }
+
+        /* Enlarge overlay */
+        #img-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.88); display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+        #img-overlay img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; }
+        #img-overlay.hidden { display: none; }
+
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin .8s linear infinite; display: inline-block; }
+
+        /* Type filter pills */
+        .type-pill {
+            display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px;
+            border-radius: 99px; font-size: .78rem; font-weight: 700; cursor: pointer;
+            border: 1.5px solid var(--outline-var); background: transparent;
+            color: var(--on-surface-var); transition: all .2s; white-space: nowrap;
+            font-family: inherit;
+        }
+        .type-pill:hover { border-color: var(--primary); color: var(--primary); }
+        .type-pill.active { background: rgba(var(--primary-rgb),.15); border-color: var(--primary); color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN WALL -->
+<div id="login-wall">
+    <div class="login-box">
+        <h1 class="text-3xl font-extrabold text-center mb-1" style="color:var(--au);">AU Viewer</h1>
+        <p class="text-center text-sm mb-6" style="color:var(--on-surface-var);">Sign in to browse universes</p>
+        <div class="flex flex-col gap-3">
+            <input type="email" id="email-input" placeholder="Email" class="form-input" autocomplete="email">
+            <input type="password" id="pass-input" placeholder="Password" class="form-input" autocomplete="current-password">
+            <button class="btn btn-primary w-full justify-center" onclick="doLogin()">
+                <span class="material-symbols-outlined">login</span> Sign In
+            </button>
+            <p id="login-err" class="text-red-400 text-sm text-center hidden"></p>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden max-w-screen-xl mx-auto px-4 py-6 sm:px-6 md:px-8">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color:var(--outline-var);">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold" style="color:var(--au);">AU Viewer</h1>
+            <p class="text-sm mt-0.5" style="color:var(--on-surface-var);">Browse Alternative Universe entries</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="user-email" class="text-xs hidden sm:inline" style="color:var(--on-surface-var);"></span>
+            <button class="btn btn-secondary" style="padding:9px;" onclick="doLogout()" title="Sign Out">
+                <span class="material-symbols-outlined">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- AU Pill Selector -->
+    <div class="panel mb-5">
+        <p class="text-xs font-semibold mb-3" style="color:var(--on-surface-var);">UNIVERSES</p>
+        <div id="au-pills" class="flex flex-wrap gap-2">
+            <span class="text-sm text-gray-500">Loading…</span>
+        </div>
+    </div>
+
+    <!-- Content (hidden until AU selected) -->
+    <div id="au-content" class="hidden">
+        <!-- AU header -->
+        <div class="flex items-center gap-3 mb-4">
+            <div id="au-icon-badge" class="flex items-center justify-center w-10 h-10 rounded-full" style="background:rgba(100,220,180,.15);border:2px solid var(--au);">
+                <span id="au-icon-el" class="material-symbols-outlined" style="color:var(--au);font-size:20px;">auto_fix_high</span>
+            </div>
+            <div>
+                <h2 id="au-title" class="text-2xl font-extrabold" style="color:var(--au);">Universe</h2>
+                <p id="au-desc" class="text-sm" style="color:var(--on-surface-var);"></p>
+            </div>
+            <div class="ml-auto text-sm font-semibold" style="color:var(--on-surface-var);">
+                <span id="au-count-in" class="mr-3">✓ <span>0</span></span>
+                <span id="au-count-out">✗ <span>0</span></span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-1 border-b mb-0" style="border-color:var(--outline-var);">
+            <button class="tab-btn active" data-view="in">
+                <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;">check_circle</span>In AU
+            </button>
+            <button class="tab-btn" data-view="out">
+                <span class="material-symbols-outlined align-middle mr-1" style="font-size:16px;">radio_button_unchecked</span>Not in AU
+            </button>
+        </div>
+
+        <!-- Entries panel -->
+        <div class="panel mt-0 rounded-tl-none" style="border-top-left-radius:0;">
+            <!-- Search + Type Filter -->
+            <div class="mb-3 flex flex-col gap-2">
+                <input type="text" id="entry-search" placeholder="Search entries…" class="form-input" oninput="filterEntries()">
+                <div class="flex gap-2 flex-wrap items-center">
+                    <button class="type-pill active" data-type="all" onclick="setTypeFilter('all')">
+                        <span class="material-symbols-outlined" style="font-size:14px;">groups</span>Her İkisi
+                    </button>
+                    <button class="type-pill" data-type="character" onclick="setTypeFilter('character')">
+                        <span class="material-symbols-outlined" style="font-size:14px;">person</span>Karakter
+                    </button>
+                    <button class="type-pill" data-type="fusion" onclick="setTypeFilter('fusion')">
+                        <span class="material-symbols-outlined" style="font-size:14px;">merge</span>Füzyon
+                    </button>
+                    <button class="type-pill ml-auto" onclick="openNameList()" title="İsimleri metin olarak göster">
+                        <span class="material-symbols-outlined" style="font-size:14px;">list_alt</span>Metin Listesi
+                    </button>
+                    <button class="type-pill" onclick="openPromptExport()" title="Promptları listele ve indir">
+                        <span class="material-symbols-outlined" style="font-size:14px;">article</span>Prompt Listesi
+                    </button>
+                </div>
+            </div>
+            <div id="loading-entries" class="text-center py-8 hidden">
+                <span class="material-symbols-outlined spin text-3xl" style="color:var(--au);">sync</span>
+                <p class="text-sm mt-2 text-gray-400">Loading…</p>
+            </div>
+            <div id="entries-grid" class="scroll-panel flex flex-col gap-2"></div>
+            <p id="entries-empty" class="hidden text-center py-8 text-gray-500 text-sm">No entries found.</p>
+        </div>
+    </div>
+
+    <p id="select-prompt" class="text-center text-gray-500 mt-12 text-sm">← Select a universe above to get started</p>
+</div>
+
+<!-- PROMPT MODAL -->
+<div id="prompt-modal" onclick="closePromptModal()">
+    <div id="prompt-modal-box" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between mb-4">
+            <div>
+                <h2 class="text-xl font-bold" style="color:var(--primary);">Prompts</h2>
+                <p id="prompt-char-name" class="text-sm text-gray-400 mt-0.5"></p>
+            </div>
+            <button class="flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-colors" onclick="closePromptModal()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="prompt-modal-body"></div>
+    </div>
+</div>
+
+<!-- NAME LIST MODAL -->
+<div id="namelist-modal" onclick="closeNameList()" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .25s;">
+    <div onclick="event.stopPropagation()" style="background:var(--surface-container);border-radius:20px;padding:1.75rem;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 36px rgba(0,0,0,.4);transform:scale(.97);transition:transform .25s;" id="namelist-modal-box">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <h2 class="text-lg font-bold" style="color:var(--primary);">İsim Listesi</h2>
+                <p id="namelist-subtitle" class="text-xs text-gray-400 mt-0.5"></p>
+            </div>
+            <div class="flex gap-2 items-center">
+                <button id="namelist-copy-btn" onclick="copyNameList()" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala
+                </button>
+                <button class="flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-colors" onclick="closeNameList()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+        <textarea id="namelist-text" readonly style="flex:1;resize:none;background:rgba(0,0,0,.25);border:1px solid var(--outline-var);border-radius:10px;padding:.75rem;color:var(--on-bg);font-family:ui-monospace,monospace;font-size:.82rem;line-height:1.7;min-height:260px;max-height:calc(80vh - 120px);overflow-y:auto;outline:none;"></textarea>
+    </div>
+</div>
+
+<!-- PROMPT EXPORT MODAL -->
+<div id="promptexport-modal" onclick="closePromptExport()" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);opacity:0;pointer-events:none;transition:opacity .25s;">
+    <div onclick="event.stopPropagation()" id="promptexport-modal-box" style="background:var(--surface-container);border-radius:20px;padding:1.75rem;width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 12px 36px rgba(0,0,0,.4);transform:scale(.97);transition:transform .25s;">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <h2 class="text-lg font-bold" style="color:var(--primary);">Prompt Listesi</h2>
+                <p id="promptexport-subtitle" class="text-xs text-gray-400 mt-0.5"></p>
+            </div>
+            <div class="flex gap-2 items-center flex-wrap justify-end">
+                <button id="promptexport-copy-btn" onclick="copyPromptExport()" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala
+                </button>
+                <button onclick="downloadPromptExport()" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">download</span>İndir
+                </button>
+                <button class="flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 transition-colors" onclick="closePromptExport()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+        <!-- Split download toggle -->
+        <label id="split-toggle-row" class="hidden flex items-center gap-2 mb-3 cursor-pointer select-none" style="font-size:.8rem;color:var(--on-surface-var);">
+            <span style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;">
+                <input type="checkbox" id="split-download-toggle" style="opacity:0;width:0;height:0;position:absolute;">
+                <span id="split-toggle-track" style="position:absolute;inset:0;background:var(--outline-var);border-radius:99px;transition:.2s;"></span>
+                <span id="split-toggle-thumb" style="position:absolute;left:3px;top:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:.2s;"></span>
+            </span>
+            10'arlı ayrı dosyalar olarak indir
+        </label>
+        <div id="promptexport-loading" class="hidden text-center py-6">
+            <span class="material-symbols-outlined spin text-3xl" style="color:var(--primary);">sync</span>
+            <p class="text-sm mt-2 text-gray-400">Promptlar yükleniyor…</p>
+        </div>
+        <textarea id="promptexport-text" readonly style="flex:1;resize:none;background:rgba(0,0,0,.25);border:1px solid var(--outline-var);border-radius:10px;padding:.75rem;color:var(--on-bg);font-family:ui-monospace,monospace;font-size:.78rem;line-height:1.65;min-height:320px;max-height:calc(85vh - 130px);overflow-y:auto;outline:none;"></textarea>
+    </div>
+</div>
+
+<!-- IMAGE OVERLAY -->
+<div id="img-overlay" class="hidden" onclick="this.classList.add('hidden')">
+    <img id="img-overlay-img" src="" alt="">
+</div>
+
+<script>
+// ── Firebase ──────────────────────────────────────────────────────────────────
+const firebaseConfig = {
+    apiKey: "AIzaSyDqFUuGo9cVOniOta5Takvwtlnb5SIYl8A",
+    authDomain: "character-gallery-v2.firebaseapp.com",
+    projectId: "character-gallery-v2",
+    storageBucket: "character-gallery-v2.firebasestorage.app",
+    messagingSenderId: "81948037217",
+    appId: "1:81948037217:web:2b256c16c53634a17d9a20"
+};
+firebase.initializeApp(firebaseConfig);
+const db   = firebase.firestore();
+const auth = firebase.auth();
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allAUs        = [];
+let allCharacters = [];   // active + dismissed combined
+let selectedAuId  = null;
+let currentView   = 'in'; // 'in' | 'out'
+let currentTypeFilter = 'all'; // 'all' | 'character' | 'fusion'
+let entriesCache  = {};   // { in: [...], out: [...] }
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+auth.onAuthStateChanged(user => {
+    if (user) {
+        document.getElementById('login-wall').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('user-email').textContent = user.email;
+        loadData();
+    } else {
+        document.getElementById('login-wall').style.display = 'flex';
+        document.getElementById('app').classList.add('hidden');
+    }
+});
+
+async function doLogin() {
+    const email = document.getElementById('email-input').value.trim();
+    const pass  = document.getElementById('pass-input').value;
+    const err   = document.getElementById('login-err');
+    err.classList.add('hidden');
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+    } catch(e) {
+        err.textContent = e.message;
+        err.classList.remove('hidden');
+    }
+}
+async function doLogout() {
+    await auth.signOut();
+}
+document.getElementById('pass-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+async function loadData() {
+    document.getElementById('au-pills').innerHTML = '<span class="text-sm text-gray-500 spin material-symbols-outlined">sync</span>';
+
+    // Load AUs
+    const auSnap = await db.collection('alternativeUniverses').get();
+    allAUs = auSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Load characters (active)
+    const charSnap = await db.collection('characters').get();
+    const active = charSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Load dismissed
+    let dismissed = [];
+    try {
+        const disSnap = await db.collection('dismissed').get();
+        dismissed = disSnap.docs.map(d => ({ id: d.id, isRetired: true, ...d.data() }));
+    } catch(_) {}
+
+    allCharacters = [...active, ...dismissed];
+
+    renderAuPills();
+}
+
+// ── AU Pills ──────────────────────────────────────────────────────────────────
+function renderAuPills() {
+    const container = document.getElementById('au-pills');
+    if (!allAUs.length) {
+        container.innerHTML = '<span class="text-sm text-gray-500">No universes found.</span>';
+        return;
+    }
+    container.innerHTML = '';
+    allAUs.forEach(au => {
+        const color = au.color || '#64dcb4';
+        const icon  = au.icon  || 'auto_fix_high';
+        const pill  = document.createElement('button');
+        pill.className = 'au-pill' + (selectedAuId === au.id ? ' active' : '');
+        pill.style.cssText = `background:${color}20;border-color:${color};color:${color};`;
+        pill.innerHTML = `<span class="material-symbols-outlined" style="font-size:15px;">${icon}</span>${au.name}`;
+        pill.onclick = () => selectAu(au.id);
+        container.appendChild(pill);
+    });
+}
+
+// ── Select AU ─────────────────────────────────────────────────────────────────
+function selectAu(auId) {
+    selectedAuId = auId;
+    currentView  = 'in';
+    entriesCache = {};
+    document.getElementById('entry-search').value = '';
+    currentTypeFilter = 'all';
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.type === 'all'));
+
+    // Update pill styling
+    renderAuPills();
+
+    const au = allAUs.find(a => a.id === auId);
+    if (!au) return;
+
+    const color = au.color || '#64dcb4';
+    const icon  = au.icon  || 'auto_fix_high';
+
+    document.getElementById('au-title').textContent = au.name;
+    document.getElementById('au-title').style.color = color;
+    document.getElementById('au-desc').textContent  = au.description || '';
+    document.getElementById('au-icon-el').textContent = icon;
+    document.getElementById('au-icon-el').style.color = color;
+    document.getElementById('au-icon-badge').style.borderColor = color;
+    document.getElementById('au-icon-badge').style.background  = color + '22';
+
+    // Tab styling
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === 'in');
+    });
+
+    document.getElementById('au-content').classList.remove('hidden');
+    document.getElementById('select-prompt').classList.add('hidden');
+
+    buildEntryCaches(au);
+    renderCurrentView();
+}
+
+// ── Build caches ──────────────────────────────────────────────────────────────
+function buildEntryCaches(au) {
+    const inList  = [];
+    const outList = [];
+
+    allCharacters.forEach(char => {
+        const entry   = char.auData?.[au.id];
+        const hasImg  = char.isFusion ? !!entry?.fusionImageUrl : !!entry?.maxStarImageUrl;
+        if (hasImg) inList.push({ char, entry });
+        else        outList.push({ char, entry: entry || null });
+    });
+
+    inList.sort((a,b)  => a.char.name.localeCompare(b.char.name, 'en'));
+    outList.sort((a,b) => a.char.name.localeCompare(b.char.name, 'en'));
+
+    // Separate out: has prompt/data but no image vs completely absent
+    entriesCache = { in: inList, out: outList };
+
+    const inCount  = inList.length;
+    const outCount = outList.length;
+    document.getElementById('au-count-in').innerHTML  = `<span style="color:#4ade80;">✓ ${inCount}</span>`;
+    document.getElementById('au-count-out').innerHTML = `<span style="color:#f87171;">✗ ${outCount}</span>`;
+}
+
+// ── Render current view ───────────────────────────────────────────────────────
+function renderCurrentView() {
+    const q       = document.getElementById('entry-search').value.toLowerCase().trim();
+    const list    = entriesCache[currentView] || [];
+    const au      = allAUs.find(a => a.id === selectedAuId);
+    const color   = au?.color || '#64dcb4';
+    const grid    = document.getElementById('entries-grid');
+    const empty   = document.getElementById('entries-empty');
+    grid.innerHTML = '';
+
+    const filtered = list.filter(({ char }) => {
+        const nameMatch = char.name.toLowerCase().includes(q) || char.id.toLowerCase().includes(q);
+        if (!nameMatch) return false;
+        if (currentTypeFilter === 'character') return !char.isFusion;
+        if (currentTypeFilter === 'fusion')    return  char.isFusion;
+        return true;
+    });
+
+    if (!filtered.length) {
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    filtered.forEach(({ char, entry }) => {
+        const card = document.createElement('div');
+        card.className = 'entry-card';
+
+        // Images
+        let imgHtml = '';
+        if (currentView === 'in') {
+            const auImg   = char.isFusion ? entry.fusionImageUrl : entry.maxStarImageUrl;
+            const maxStar = 1 + (char.evolutions?.length || 0);
+            const origImg = char.isFusion
+                ? (char.previewUrl || char.imageUrl || '')
+                : (char.evolutions?.find(e=>e.star===maxStar)?.imageUrl || char.imageUrl || '');
+            imgHtml = `
+                <div class="flex gap-2 flex-shrink-0">
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="${origImg}" alt="Original" style="width:48px;height:64px;" class="cursor-zoom-in" onclick="enlargeImg('${origImg}')">
+                        <span class="text-xs text-gray-500">Orig</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <img src="${auImg}" alt="AU" style="width:48px;height:64px;border:2px solid ${color};" class="cursor-zoom-in rounded-lg" onclick="enlargeImg('${auImg}')">
+                        <span class="text-xs font-semibold" style="color:${color};">AU</span>
+                    </div>
+                </div>`;
+        } else {
+            const origImg = char.isFusion
+                ? (char.previewUrl || char.imageUrl || '')
+                : (char.imageUrl || '');
+            imgHtml = `<div class="flex-shrink-0">
+                <img src="${origImg}" alt="${char.name}" style="width:48px;height:64px;" class="cursor-zoom-in rounded-lg" onclick="enlargeImg('${origImg}')">
+            </div>`;
+        }
+
+        // Prompt preview (AU-specific)
+        const auPrompt = entry?.prompt ? `<p class="text-xs text-gray-500 mt-1 truncate" style="max-width:280px;">AU Prompt: ${entry.prompt.substring(0,60)}…</p>` : '';
+
+        // Retired badge
+        const retiredBadge = char.isRetired ? `<span class="text-xs font-bold ml-2" style="color:#fb923c;">RETIRED</span>` : '';
+        const typeBadge    = char.isFusion  ? `<span class="text-xs px-1.5 py-0.5 rounded font-medium" style="background:rgba(var(--primary-rgb),.15);color:var(--primary);">Fusion</span>` : '';
+
+        card.innerHTML = `
+            ${imgHtml}
+            <div class="flex-grow min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <p class="font-bold truncate">${char.name}${retiredBadge}</p>
+                    ${typeBadge}
+                </div>
+                <p class="text-xs text-gray-500">ID: ${char.id}</p>
+                ${auPrompt}
+            </div>
+            <div class="flex-shrink-0 flex gap-1">
+                <button class="flex items-center justify-center w-9 h-9 rounded-full transition-colors hover:bg-white/10" title="View Prompts" onclick="openPromptModal('${char.id}', '${char.name.replace(/'/g,"\\'")}', ${entry ? `'${selectedAuId}'` : 'null'})">
+                    <span class="material-symbols-outlined" style="font-size:18px;color:var(--primary);">description</span>
+                </button>
+            </div>`;
+
+        grid.appendChild(card);
+    });
+}
+
+function filterEntries() { renderCurrentView(); }
+
+function setTypeFilter(type) {
+    currentTypeFilter = type;
+    document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.type === type));
+    renderCurrentView();
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentView = btn.dataset.view;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        document.getElementById('entry-search').value = '';
+        currentTypeFilter = 'all';
+        document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.type === 'all'));
+        renderCurrentView();
+    });
+});
+
+// ── Prompt Modal ──────────────────────────────────────────────────────────────
+async function openPromptModal(charId, charName, auIdArg) {
+    const modal = document.getElementById('prompt-modal');
+    const body  = document.getElementById('prompt-modal-body');
+    document.getElementById('prompt-char-name').textContent = charName;
+    body.innerHTML = '<p class="text-center text-gray-400 py-6"><span class="material-symbols-outlined spin">sync</span></p>';
+    modal.classList.add('visible');
+
+    try {
+        // Load main prompts
+        const snap = await db.collection('promptLibrary').where('charId', '==', charId).get();
+        const starOrder = { '1': 0, '2': 1, '3': 2, 'fusion': 3, 'extra': 4 };
+        const prompts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (starOrder[a.charStar] ?? 99) - (starOrder[b.charStar] ?? 99));
+
+        let html = '';
+
+        if (prompts.length) {
+            html += `<p class="text-xs font-bold mb-3" style="color:var(--on-surface-var);">MAIN PROMPTS (${prompts.length})</p>`;
+            prompts.forEach(p => {
+                const label = p.title || (p.charStar ? `${p.charStar}★` : 'Prompt');
+                html += `<div class="prompt-block">
+                    <div class="prompt-label">${label}</div>
+                    <div class="prompt-text">${escapeHtml(p.prompt || p.promptText || p.text || '')}</div>
+                </div>`;
+            });
+        } else {
+            html += `<p class="text-sm text-gray-500 mb-4">No main prompts found for this character.</p>`;
+        }
+
+        // AU-specific prompt
+        if (auIdArg && auIdArg !== 'null') {
+            const char  = allCharacters.find(c => c.id === charId);
+            const entry = char?.auData?.[auIdArg];
+            const au    = allAUs.find(a => a.id === auIdArg);
+            if (entry?.prompt) {
+                html += `<p class="text-xs font-bold mb-3 mt-4" style="color:${au?.color||'var(--au)'};">AU PROMPT — ${au?.name || auIdArg}</p>`;
+                html += `<div class="prompt-block" style="border-color:${au?.color||'var(--au)'}40;">
+                    <div class="prompt-label" style="color:${au?.color||'var(--au)'};">${au?.name || 'AU'} Prompt</div>
+                    <div class="prompt-text">${escapeHtml(entry.prompt)}</div>
+                </div>`;
+            } else if (auIdArg !== 'null') {
+                html += `<p class="text-xs text-gray-500 mt-4">No AU-specific prompt for ${au?.name || auIdArg}.</p>`;
+            }
+        }
+
+        body.innerHTML = html || '<p class="text-gray-500 text-sm text-center py-6">No prompts found.</p>';
+    } catch(e) {
+        body.innerHTML = `<p class="text-red-400 text-sm">Error loading prompts: ${e.message}</p>`;
+    }
+}
+
+function closePromptModal() {
+    document.getElementById('prompt-modal').classList.remove('visible');
+}
+
+// ── Name List Modal ───────────────────────────────────────────────────────────
+function openNameList() {
+    const list   = entriesCache[currentView] || [];
+    const q      = document.getElementById('entry-search').value.toLowerCase().trim();
+
+    const filtered = list.filter(({ char }) => {
+        const nameMatch = char.name.toLowerCase().includes(q) || char.id.toLowerCase().includes(q);
+        if (!nameMatch) return false;
+        if (currentTypeFilter === 'character') return !char.isFusion;
+        if (currentTypeFilter === 'fusion')    return  char.isFusion;
+        return true;
+    });
+
+    const names = filtered.map(({ char }) => char.name).join('\n');
+
+    const typeLabel = currentTypeFilter === 'character' ? 'Karakter' : currentTypeFilter === 'fusion' ? 'Füzyon' : 'Her İkisi';
+    const viewLabel = currentView === 'in' ? 'AU\'da var' : 'AU\'da yok';
+    const au = allAUs.find(a => a.id === selectedAuId);
+    document.getElementById('namelist-subtitle').textContent = `${au?.name || ''} — ${viewLabel} — ${typeLabel} (${filtered.length})`;
+    document.getElementById('namelist-text').value = names;
+
+    const modal = document.getElementById('namelist-modal');
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+    document.getElementById('namelist-modal-box').style.transform = 'scale(1)';
+    document.getElementById('namelist-copy-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala';
+}
+
+function closeNameList() {
+    const modal = document.getElementById('namelist-modal');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    document.getElementById('namelist-modal-box').style.transform = 'scale(.97)';
+}
+
+async function copyNameList() {
+    const text = document.getElementById('namelist-text').value;
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('namelist-copy-btn');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">check</span>Kopyalandı';
+    setTimeout(() => {
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala';
+    }, 2000);
+}
+
+// ── Prompt Export Modal ───────────────────────────────────────────────────────
+async function openPromptExport() {
+    const modal = document.getElementById('promptexport-modal');
+    modal.style.opacity = '1';
+    modal.style.pointerEvents = 'auto';
+    document.getElementById('promptexport-modal-box').style.transform = 'scale(1)';
+    document.getElementById('promptexport-text').classList.add('hidden');
+    document.getElementById('promptexport-loading').classList.remove('hidden');
+
+    const list = entriesCache[currentView] || [];
+    const q    = document.getElementById('entry-search').value.toLowerCase().trim();
+
+    const filtered = list.filter(({ char }) => {
+        const nameMatch = char.name.toLowerCase().includes(q) || char.id.toLowerCase().includes(q);
+        if (!nameMatch) return false;
+        if (currentTypeFilter === 'character') return !char.isFusion;
+        if (currentTypeFilter === 'fusion')    return  char.isFusion;
+        return true;
+    });
+
+    const au        = allAUs.find(a => a.id === selectedAuId);
+    const typeLabel = currentTypeFilter === 'character' ? 'Karakter' : currentTypeFilter === 'fusion' ? 'Füzyon' : 'Her İkisi';
+    const viewLabel = currentView === 'in' ? "AU'da var" : "AU'da yok";
+    document.getElementById('promptexport-subtitle').textContent =
+        `${au?.name || ''} — ${viewLabel} — ${typeLabel} (${filtered.length})`;
+
+    // Fetch main prompts for all characters in parallel
+    const results = await Promise.all(filtered.map(async ({ char, entry }) => {
+        try {
+            const snap    = await db.collection('promptLibrary').where('charId', '==', char.id).get();
+            const prompts = snap.docs.map(d => d.data());
+            return { char, entry, prompts };
+        } catch(_) {
+            return { char, entry, prompts: [] };
+        }
+    }));
+
+    // Build formatted text
+    const sep = '─'.repeat(48);
+    let output = results.map(({ char, entry, prompts }) => {
+        let block = `=== ${char.name} ===\n`;
+
+        if (prompts.length) {
+            const star3 = prompts.find(p => p.charStar === '3');
+            if (star3) {
+                const text = (star3.prompt || star3.promptText || star3.text || '').trim();
+                block += `\n[3★]\n${text}\n`;
+            } else {
+                block += '\n(3★ prompt bulunamadı)\n';
+            }
+        } else {
+            block += '\n(Ana prompt bulunamadı)\n';
+        }
+
+        if (entry?.prompt) {
+            block += `\n[AU Prompt — ${au?.name || selectedAuId}]\n${entry.prompt.trim()}\n`;
+        }
+
+        return block;
+    }).join(`\n${sep}\n\n`);
+
+    document.getElementById('promptexport-loading').classList.add('hidden');
+    const textarea = document.getElementById('promptexport-text');
+    textarea.classList.remove('hidden');
+    textarea.value = output;
+    document.getElementById('promptexport-copy-btn').innerHTML =
+        '<span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala';
+
+    // Store raw results for split-download and show toggle if >10 chars
+    window._promptExportResults = results;
+    window._promptExportAu      = au;
+    const toggleRow = document.getElementById('split-toggle-row');
+    if (results.length > 10) {
+        toggleRow.classList.remove('hidden');
+    } else {
+        toggleRow.classList.add('hidden');
+        document.getElementById('split-download-toggle').checked = false;
+        document.getElementById('split-toggle-track').style.background = 'var(--outline-var)';
+        document.getElementById('split-toggle-thumb').style.left = '3px';
+    }
+}
+
+function closePromptExport() {
+    const modal = document.getElementById('promptexport-modal');
+    modal.style.opacity = '0';
+    modal.style.pointerEvents = 'none';
+    document.getElementById('promptexport-modal-box').style.transform = 'scale(.97)';
+}
+
+async function copyPromptExport() {
+    const text = document.getElementById('promptexport-text').value;
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('promptexport-copy-btn');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">check</span>Kopyalandı';
+    setTimeout(() => {
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>Kopyala';
+    }, 2000);
+}
+
+function _buildPromptBlock(results, au) {
+    const sep = '─'.repeat(48);
+    return results.map(({ char, entry, prompts }) => {
+        let block = `=== ${char.name} ===\n`;
+        const star3 = prompts.find(p => p.charStar === '3');
+        if (star3) {
+            const text = (star3.prompt || star3.promptText || star3.text || '').trim();
+            block += `\n[3★]\n${text}\n`;
+        } else {
+            block += '\n(3★ prompt bulunamadı)\n';
+        }
+        if (entry?.prompt) {
+            block += `\n[AU Prompt — ${au?.name || selectedAuId}]\n${entry.prompt.trim()}\n`;
+        }
+        return block;
+    }).join(`\n${sep}\n\n`);
+}
+
+function _triggerDownload(text, filename) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), { href: url, download: filename });
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function downloadPromptExport() {
+    const results = window._promptExportResults;
+    if (!results || !results.length) return;
+
+    const au        = window._promptExportAu || allAUs.find(a => a.id === selectedAuId);
+    const viewLabel = currentView === 'in' ? 'in' : 'out';
+    const typeLabel = currentTypeFilter === 'character' ? 'chars' : currentTypeFilter === 'fusion' ? 'fusions' : 'all';
+    const auSlug    = (au?.name || selectedAuId).replace(/\s+/g,'_');
+    const splitMode = document.getElementById('split-download-toggle').checked;
+
+    if (splitMode) {
+        const chunkSize = 10;
+        const chunks = [];
+        for (let i = 0; i < results.length; i += chunkSize) chunks.push(results.slice(i, i + chunkSize));
+        chunks.forEach((chunk, idx) => {
+            const from     = idx * chunkSize + 1;
+            const to       = Math.min((idx + 1) * chunkSize, results.length);
+            const filename = `prompts_${auSlug}_${viewLabel}_${typeLabel}_${from}-${to}.txt`;
+            const text     = _buildPromptBlock(chunk, au);
+            setTimeout(() => _triggerDownload(text, filename), idx * 300);
+        });
+    } else {
+        const filename = `prompts_${auSlug}_${viewLabel}_${typeLabel}.txt`;
+        const text     = _buildPromptBlock(results, au);
+        _triggerDownload(text, filename);
+    }
+}
+
+// Toggle switch visual
+document.getElementById('split-download-toggle').addEventListener('change', function() {
+    document.getElementById('split-toggle-track').style.background = this.checked ? 'var(--primary)' : 'var(--outline-var)';
+    document.getElementById('split-toggle-thumb').style.left       = this.checked ? '19px' : '3px';
+});
+
+// ── Image enlarge ─────────────────────────────────────────────────────────────
+function enlargeImg(src) {
+    if (!src) return;
+    document.getElementById('img-overlay-img').src = src;
+    document.getElementById('img-overlay').classList.remove('hidden');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

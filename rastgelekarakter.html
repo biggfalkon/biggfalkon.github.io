@@ -192,20 +192,16 @@
     <!-- HEADER -->
     <header class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 pb-4 border-b gap-4" style="border-color:var(--outline-var)">
         <div>
-            <h1 class="text-4xl font-extrabold" style="color:var(--primary)">Random Character Picker</h1>
+            <h1 class="text-4xl font-extrabold" style="color:var(--primary);font-family:'Metamorphous',serif">Random Character Picker</h1>
             <p id="loading-status" class="text-base mt-1 flex items-center gap-2">
                 <span class="spinner"></span>
                 <span id="loading-text" style="color:var(--on-surface-var)">Connecting to database…</span>
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="index.html" class="btn btn-secondary">
-                <span class="material-symbols-outlined">collections</span>
-                <span class="hidden sm:inline">Gallery</span>
-            </a>
-            <a href="oyun.html" class="btn btn-secondary">
-                <span class="material-symbols-outlined">sports_esports</span>
-                <span class="hidden sm:inline">Tournament</span>
+            <a href="links.html" class="btn btn-secondary">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span class="hidden sm:inline">Back</span>
             </a>
             <a href="index2.html" class="btn btn-secondary">
                 <span class="material-symbols-outlined">admin_panel_settings</span>
@@ -351,12 +347,12 @@
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyDrEU_QEuvf960ZPxo29n6x8N9K7yGIkCQ",
-    authDomain: "karaktergalerisi-dc337.firebaseapp.com",
-    projectId: "karaktergalerisi-dc337",
-    storageBucket: "karaktergalerisi-dc337.firebasestorage.app",
-    messagingSenderId: "486669559067",
-    appId: "1:486669559067:web:20c76a78a41d9bc0bbdfbe"
+    apiKey: "AIzaSyDqFUuGo9cVOniOta5Takvwtlnb5SIYl8A",
+    authDomain: "character-gallery-v2.firebaseapp.com",
+    projectId: "character-gallery-v2",
+    storageBucket: "character-gallery-v2.firebasestorage.app",
+    messagingSenderId: "81948037217",
+    appId: "1:81948037217:web:2b256c16c53634a17d9a20"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();

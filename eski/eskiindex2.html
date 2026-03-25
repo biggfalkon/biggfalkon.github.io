@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Character Universe</title>
+    <title>Admin Panel</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#443a74"/>
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Characters">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
@@ -51,18 +47,7 @@
             --au-container: #0a4f3a;
             --on-au-container: #a0f5d8;
         }
-        body { font-family: 'Manrope', sans-serif; background-color: var(--bg); color: var(--on-bg); overflow-x: hidden; }
-        body::before {
-            content: ''; position: fixed; inset: 0; z-index: -1;
-            background:
-                radial-gradient(circle at 15% 25%, rgba(var(--primary-rgb),.14) 0%, transparent 40%),
-                radial-gradient(circle at 85% 65%, rgba(140,179,255,.11) 0%, transparent 45%);
-            animation: aurora 20s infinite alternate ease-in-out;
-        }
-        @keyframes aurora {
-            from { transform: translate(0,0) rotate(0deg) scale(1.2); }
-            to   { transform: translate(5vw,-5vh) rotate(10deg) scale(1.2); }
-        }
+        body { font-family: 'Manrope', sans-serif; background-color: var(--bg); color: var(--on-bg); }
         .form-input, .form-select {
             background-color: var(--surface-high); border: 1px solid var(--outline-var);
             color: var(--on-surface); border-radius: 8px; padding: 12px; width: 100%;
@@ -84,7 +69,7 @@
 
         .btn {
             display: inline-flex; align-items: center; justify-content: center;
-            gap: 8px; padding: 10px 20px; border-radius: 99px; font-weight: 700;
+            gap: 8px; padding: 10px 20px; border-radius: 8px; font-weight: 700;
             border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease;
         }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -152,71 +137,6 @@
         .au-entry-card:hover { border-color: rgba(var(--au-rgb), 0.5); }
         .au-entry-card img { width: 64px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
 
-        /* ── Stat cards ── */
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px;
-            margin-bottom: 1.5rem;
-        }
-        .stat-card {
-            background: var(--surface-container);
-            border: 1px solid var(--outline-var);
-            border-radius: 16px;
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        }
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0.06;
-            background: radial-gradient(circle at 80% 20%, var(--stat-color, var(--primary)) 0%, transparent 70%);
-        }
-        .stat-card .stat-icon {
-            font-size: 18px;
-            color: var(--stat-color, var(--primary));
-            margin-bottom: 2px;
-        }
-        .stat-card .stat-value {
-            font-size: 1.75rem;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--on-surface);
-        }
-        .stat-card .stat-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--on-surface-var);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .stat-card .stat-sub {
-            font-size: 0.7rem;
-            color: var(--stat-color, var(--primary));
-            font-weight: 600;
-            margin-top: 2px;
-        }
-        .stat-card.skeleton .stat-value {
-            width: 48px; height: 28px;
-            background: var(--surface-high);
-            border-radius: 6px;
-            animation: skeleton-pulse 1.4s ease-in-out infinite;
-        }
-        @keyframes skeleton-pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
         /* Scrollbars */
         .modal-content::-webkit-scrollbar, #selector-grid::-webkit-scrollbar, #qp-content::-webkit-scrollbar { width: 6px; }
         .modal-content::-webkit-scrollbar-track, #selector-grid::-webkit-scrollbar-track, #qp-content::-webkit-scrollbar-track { background: transparent; }
@@ -238,37 +158,6 @@
         #cache-toast .toast-fill {
             height: 100%; border-radius: 2px; background: var(--primary); transition: width .3s ease;
         }
-
-        /* Aurora background */
-        body::before {
-            content: '';
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background:
-                radial-gradient(circle at 12% 20%, rgba(var(--primary-rgb), 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 88% 70%, rgba(var(--primary-rgb), 0.07) 0%, transparent 45%);
-            z-index: -1; pointer-events: none;
-        }
-
-        /* Glass controls panel */
-        .controls-panel {
-            background: rgba(26, 25, 31, 0.75);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(146, 143, 153, 0.18);
-            border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem;
-        }
-
-        /* Filter chips */
-        .chip {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 8px 16px; border-radius: 20px; flex-shrink: 0;
-            font-weight: 600; font-size: 0.8rem;
-            border: 1px solid var(--outline-var);
-            background-color: var(--surface-high);
-            color: var(--on-surface-var);
-            transition: all 0.2s ease-in-out; cursor: pointer; white-space: nowrap;
-        }
-        .chip:hover { background-color: rgba(255,255,255,0.08); color: var(--on-surface); }
-        .chip.selected { background-color: var(--primary-container); color: var(--on-primary-container); border-color: var(--primary); }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8">
@@ -292,65 +181,22 @@
 <div id="app" class="max-w-screen-xl mx-auto">
     <header class="flex justify-between items-center mb-6 pb-4 border-b" style="border-color: var(--outline-var);">
         <div>
-            <h1 class="text-4xl md:text-5xl font-extrabold" style="color: var(--primary); font-family: 'Metamorphous', serif;">Admin Panel</h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold" style="color: var(--primary);">Admin Panel</h1>
             <p class="text-lg mt-1" style="color: var(--on-surface-var);">Manage Characters, Fusions & Alt. Universes</p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="links.html" class="btn btn-secondary" title="Back" style="padding:10px;">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </a>
-            <button id="cache-btn" class="btn btn-secondary" title="Pre-cache all character images for fast loading across the site" style="padding:10px;">
+            <button id="cache-btn" class="btn btn-secondary" title="Pre-cache all character images for fast loading across the site">
                 <span id="cache-btn-icon" class="material-symbols-outlined">cloud_download</span>
-                <span id="cache-btn-text" style="display:none;">Cache Images</span>
+                <span id="cache-btn-text" class="hidden sm:inline">Cache Images</span>
             </button>
             <div id="auth-button-container">
-            <button id="auth-action-btn" class="btn btn-secondary" title="Sign In / Sign Out" style="padding:10px;">
+            <button id="auth-action-btn" class="btn btn-secondary">
                 <span id="auth-action-icon" class="material-symbols-outlined">login</span>
-                <span id="auth-action-text" style="display:none;">Sign In</span>
+                <span id="auth-action-text">Sign In</span>
             </button>
         </div>
         </div>
     </header>
-
-    <!-- STAT CARDS -->
-    <div class="stat-grid" id="stat-grid">
-        <div class="stat-card skeleton" style="--stat-color: rgb(var(--primary-rgb))">
-            <span class="material-symbols-outlined stat-icon">person</span>
-            <div class="stat-value" id="stat-chars">—</div>
-            <div class="stat-label">Characters</div>
-            <div class="stat-sub" id="stat-chars-sub"></div>
-        </div>
-        <div class="stat-card skeleton" style="--stat-color: #e0b3ff">
-            <span class="material-symbols-outlined stat-icon">merge_type</span>
-            <div class="stat-value" id="stat-fusions">—</div>
-            <div class="stat-label">Fusions</div>
-            <div class="stat-sub" id="stat-fusions-sub"></div>
-        </div>
-        <div class="stat-card skeleton" style="--stat-color: rgb(var(--au-rgb))">
-            <span class="material-symbols-outlined stat-icon">auto_fix_high</span>
-            <div class="stat-value" id="stat-aus">—</div>
-            <div class="stat-label">Universes</div>
-            <div class="stat-sub" id="stat-aus-sub"></div>
-        </div>
-        <div class="stat-card skeleton" style="--stat-color: rgb(var(--warning-rgb))">
-            <span class="material-symbols-outlined stat-icon">archive</span>
-            <div class="stat-value" id="stat-retired">—</div>
-            <div class="stat-label">Retired</div>
-            <div class="stat-sub" id="stat-retired-sub"></div>
-        </div>
-        <div class="stat-card skeleton" style="--stat-color: #7ec8ff">
-            <span class="material-symbols-outlined stat-icon">photo_library</span>
-            <div class="stat-value" id="stat-images">—</div>
-            <div class="stat-label">Images</div>
-            <div class="stat-sub" id="stat-images-sub"></div>
-        </div>
-        <div class="stat-card skeleton" style="--stat-color: rgb(var(--success-rgb))">
-            <span class="material-symbols-outlined stat-icon">content_paste</span>
-            <div class="stat-value" id="stat-evos">—</div>
-            <div class="stat-label">Full Sets</div>
-            <div class="stat-sub" id="stat-evos-sub"></div>
-        </div>
-    </div>
 
     <!-- TAB BAR -->
     <div class="flex gap-1 mb-0 border-b" style="border-color: var(--outline-var);">
@@ -365,47 +211,32 @@
     <!-- ═══════════════════ CHARACTERS TAB ═══════════════════ -->
     <div id="tab-characters" class="tab-content active pt-6">
         <!-- Controls -->
-        <div class="controls-panel">
-            <!-- Row 1: Search + Sort inline -->
-            <div class="flex gap-2 mb-3">
-                <input type="text" id="search-input" placeholder="Search records..." class="form-input flex-grow">
-                <select id="sort-by" class="form-select flex-shrink-0" style="width:100px;padding-left:10px;padding-right:10px;font-size:0.82rem;">
-                    <option value="name_asc">A–Z</option>
-                    <option value="date_desc">Newest</option>
-                    <option value="date_asc">Oldest</option>
-                </select>
-            </div>
-
-            <!-- Row 2: Type chips + Irk + Reports — all in one scrollable row -->
-            <div class="flex items-center gap-2 mb-3" style="overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;">
-                <button class="chip selected" data-type-filter="all">All</button>
-                <button class="chip" data-type-filter="character">Character</button>
-                <button class="chip" data-type-filter="fusion">Fusion</button>
-                <button class="chip" data-type-filter="retired">Retired</button>
-                <span style="width:1px;height:18px;background:var(--outline-var);flex-shrink:0;margin:0 2px;"></span>
-                <select id="irk-filter" class="form-select flex-shrink-0" style="width:auto;min-width:90px;padding:6px 8px;font-size:0.8rem;">
-                    <option value="all">All Races</option>
-                </select>
-                <select id="view-filter" class="form-select flex-shrink-0" style="width:auto;padding:6px 8px;font-size:0.8rem;">
-                    <option value="all">Reports…</option>
-                    <option value="available">Available</option>
-                    <option value="preview-report">Preview</option>
-                    <option value="character-report">Characters</option>
-                </select>
-            </div>
-
-            <!-- Row 3: Action buttons — compact -->
-            <div class="flex gap-2 items-center">
-                <button id="toggle-form-btn" class="btn btn-primary">
+        <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-center">
+            <input type="text" id="search-input" placeholder="Search records..." class="form-input md:col-span-2">
+            <select id="view-filter" class="form-select">
+                <option value="all">All Records</option>
+                <option value="available">Available Characters</option>
+                <option value="preview-report">Fusion Preview Report</option>
+                <option value="character-report">Character Report</option>
+            </select>
+            <select id="sort-by" class="form-select">
+                <option value="name_asc">Name (A–Z)</option>
+                <option value="date_desc">Added (Newest)</option>
+                <option value="date_asc">Added (Oldest)</option>
+            </select>
+            <div class="col-span-full mt-2 flex flex-col sm:flex-row gap-3 flex-wrap">
+                <button id="toggle-form-btn" class="btn btn-primary w-full sm:w-auto">
                     <span id="toggle-form-icon" class="material-symbols-outlined">add</span>
-                    <span id="toggle-form-text">Add</span>
+                    <span id="toggle-form-text">Add New</span>
                 </button>
-                <a href="rastgelekarakter.html" class="btn btn-secondary" title="Random Character" style="padding:10px;">
-                    <span class="material-symbols-outlined">casino</span>
+                <a href="index.html" class="btn btn-secondary w-full sm:w-auto">
+                    <span class="material-symbols-outlined">gallery_thumbnail</span><span>Gallery</span>
                 </a>
-                <button class="btn btn-secondary" onclick="openExportModal()" title="Download Prompts">
-                    <span class="material-symbols-outlined">download</span>
-                    <span class="hidden sm:inline">Prompts</span>
+                <a href="rastgelekarakter.html" class="btn btn-secondary w-full sm:w-auto">
+                    <span class="material-symbols-outlined">casino</span><span>Random</span>
+                </a>
+                <button class="btn btn-secondary w-full sm:w-auto" onclick="openExportModal()">
+                    <span class="material-symbols-outlined">download</span><span>Download Prompts</span>
                 </button>
             </div>
         </div>
@@ -422,34 +253,8 @@
                     <option value="character">Normal Character</option>
                     <option value="fusion">Fusion</option>
                 </select>
-                <div>
-                    <input required type="text" name="id" id="id-input" placeholder="Record ID (must be unique)" class="form-input">
-                    <div id="id-rename-warning" class="hidden mt-2 px-3 py-2 rounded-xl text-sm font-medium flex items-start gap-2" style="background:rgba(255,183,77,0.12);border:1px solid rgba(255,183,77,0.35);color:var(--warning);">
-                        <span class="material-symbols-outlined flex-shrink-0" style="font-size:17px;margin-top:1px;">warning</span>
-                        <span>Renaming the ID will delete the old document and create a new one. All prompts and AU data will be migrated automatically. Make sure the new ID is unique.</span>
-                    </div>
-                </div>
-                <div>
-                    <input required type="text" name="name" id="name-input" placeholder="Name" class="form-input">
-                    <div id="duplicate-name-warning" class="hidden mt-2 px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-2" style="background:rgba(255,183,77,0.1);border:1px solid rgba(255,183,77,0.3);color:var(--warning);">
-                        <span class="material-symbols-outlined flex-shrink-0" style="font-size:17px;">person_search</span>
-                        <span id="duplicate-name-text"></span>
-                    </div>
-                </div>
-                <input type="text" name="irk" id="irk-input" placeholder="Race (optional)" class="form-input" list="irk-datalist" autocomplete="off">
-                <datalist id="irk-datalist"></datalist>
-
-                <div id="fusion-preview-image-field" class="hidden flex flex-col gap-3">
-                    <div id="preview-image-container">
-                        <label class="block text-sm font-medium mb-1">Main Fusion Image (PNG/JPG)</label>
-                        <div class="flex flex-col sm:flex-row gap-2">
-                            <select class="form-select sm:w-1/3 image-upload-method"><option value="imgbb">ImgBB Upload</option><option value="imgbb2">ImgBB 2 Upload</option><option value="vgy">VGY.ME Upload</option><option value="link">Direct Link</option></select>
-                            <input type="file" name="fusion_preview_file" class="form-input flex-grow image-upload-file" accept="image/*">
-                            <input type="text" name="previewUrl" placeholder="https://..." class="form-input flex-grow image-upload-link hidden">
-                        </div>
-                        <div class="img-preview hidden mt-2"><img class="h-20 w-auto rounded-lg object-cover border" style="border-color:var(--outline-var);"></div>
-                    </div>
-                </div>
+                <input required type="text" name="id" placeholder="Record ID (must be unique)" class="form-input">
+                <input required type="text" name="name" placeholder="Name" class="form-input">
 
                 <div id="main-image-container">
                     <label class="block text-sm font-medium mb-1">Main Image</label>
@@ -459,10 +264,9 @@
                             <option value="vgy">VGY.ME Upload</option>
                             <option value="link">Direct Link</option>
                         </select>
-                        <input type="file" name="imageFile" class="form-input flex-grow image-upload-file" accept="image/*">
+                        <input type="file" name="imageFile" class="form-input flex-grow image-upload-file">
                         <input type="text" name="imageUrl" placeholder="https://..." class="form-input flex-grow image-upload-link hidden">
                     </div>
-                    <div class="img-preview hidden mt-2"><img class="h-20 w-auto rounded-lg object-cover border" style="border-color:var(--outline-var);"></div>
                 </div>
 
                 <div id="character-fields" class="flex flex-col gap-3">
@@ -470,19 +274,17 @@
                         <label class="block text-sm font-medium mb-1">2★ Image</label>
                         <div class="flex flex-col sm:flex-row gap-2">
                             <select class="form-select sm:w-1/3 image-upload-method"><option value="imgbb">ImgBB Upload</option><option value="imgbb2">ImgBB 2 Upload</option><option value="vgy">VGY.ME Upload</option><option value="link">Direct Link</option></select>
-                            <input type="file" name="evolutions_1_file" class="form-input flex-grow image-upload-file" accept="image/*">
+                            <input type="file" name="evolutions_1_file" class="form-input flex-grow image-upload-file">
                             <input type="text" name="evolutions_1_url" placeholder="https://..." class="form-input flex-grow image-upload-link hidden">
                         </div>
-                        <div class="img-preview hidden mt-2"><img class="h-20 w-auto rounded-lg object-cover border" style="border-color:var(--outline-var);"></div>
                     </div>
                     <div id="evo2-image-container">
                         <label class="block text-sm font-medium mb-1">3★ Image</label>
                         <div class="flex flex-col sm:flex-row gap-2">
                             <select class="form-select sm:w-1/3 image-upload-method"><option value="imgbb">ImgBB Upload</option><option value="imgbb2">ImgBB 2 Upload</option><option value="vgy">VGY.ME Upload</option><option value="link">Direct Link</option></select>
-                            <input type="file" name="evolutions_2_file" class="form-input flex-grow image-upload-file" accept="image/*">
+                            <input type="file" name="evolutions_2_file" class="form-input flex-grow image-upload-file">
                             <input type="text" name="evolutions_2_url" placeholder="https://..." class="form-input flex-grow image-upload-link hidden">
                         </div>
-                        <div class="img-preview hidden mt-2"><img class="h-20 w-auto rounded-lg object-cover border" style="border-color:var(--outline-var);"></div>
                     </div>
                 </div>
 
@@ -496,41 +298,53 @@
                         <div class="flex items-center gap-2"><div id="fusionPartners_1_display" class="form-input flex-grow bg-gray-700/50 italic text-gray-400">Not selected</div><button type="button" class="btn btn-secondary" onclick="openCharacterSelector('fusionPartners_1')">Select</button><input type="hidden" name="fusionPartners_1"></div>
                     </div>
                 </div>
+                <div id="fusion-preview-image-field" class="hidden flex flex-col gap-3">
+                    <div id="preview-image-container">
+                        <label class="block text-sm font-medium mb-1">Fusion Preview Image (PNG/JPG)</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <select class="form-select sm:w-1/3 image-upload-method"><option value="imgbb">ImgBB Upload</option><option value="imgbb2">ImgBB 2 Upload</option><option value="vgy">VGY.ME Upload</option><option value="link">Direct Link</option></select>
+                            <input type="file" name="fusion_preview_file" class="form-input flex-grow image-upload-file">
+                            <input type="text" name="previewUrl" placeholder="https://..." class="form-input flex-grow image-upload-link hidden">
+                        </div>
+                    </div>
+                </div>
+                <div id="easter-egg-fields" class="hidden flex flex-col gap-3">
+                    <div class="character-selector-wrapper">
+                        <label class="block text-sm font-medium mb-1">Original Character</label>
+                        <div class="flex items-center gap-2"><div id="originalCharacterId_display" class="form-input flex-grow bg-gray-700/50 italic text-gray-400">Not selected</div><button type="button" class="btn btn-secondary" onclick="openCharacterSelector('originalCharacterId')">Select</button><input type="hidden" name="originalCharacterId"></div>
+                    </div>
+                </div>
+
                 <div id="prompt-management-section" class="hidden">
                     <h3 class="prompt-section-header">Prompt Management</h3>
                     <div id="prompt-block-1" class="prompt-block hidden" data-level="1">
-                        <div class="prompt-label"><span>1★ Prompt</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
+                        <div class="prompt-label"><span>Level 1 Prompt (Default)</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
                         <input type="text" id="prompt-title-1" class="form-input mb-2 text-sm" placeholder="Prompt Title (Optional)">
                         <textarea id="prompt-text-1" class="form-input text-sm font-mono" rows="4" placeholder="Enter prompt text here..."></textarea>
-                        <div class="text-right text-xs mt-1 prompt-char-count" style="color:var(--on-surface-var);"></div>
                         <input type="hidden" id="prompt-docId-1">
                     </div>
                     <div id="prompt-block-2" class="prompt-block hidden" data-level="2">
-                        <div class="prompt-label"><span>2★ Prompt</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
+                        <div class="prompt-label"><span>Level 2 Prompt (Evolution 1)</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
                         <input type="text" id="prompt-title-2" class="form-input mb-2 text-sm" placeholder="Prompt Title">
                         <textarea id="prompt-text-2" class="form-input text-sm font-mono" rows="4" placeholder="Level 2 prompt text..."></textarea>
-                        <div class="text-right text-xs mt-1 prompt-char-count" style="color:var(--on-surface-var);"></div>
                         <input type="hidden" id="prompt-docId-2">
                     </div>
                     <div id="prompt-block-3" class="prompt-block hidden" data-level="3">
-                        <div class="prompt-label"><span>3★ Prompt</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
+                        <div class="prompt-label"><span>Level 3 Prompt (Evolution 2)</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
                         <input type="text" id="prompt-title-3" class="form-input mb-2 text-sm" placeholder="Prompt Title">
                         <textarea id="prompt-text-3" class="form-input text-sm font-mono" rows="4" placeholder="Level 3 prompt text..."></textarea>
-                        <div class="text-right text-xs mt-1 prompt-char-count" style="color:var(--on-surface-var);"></div>
                         <input type="hidden" id="prompt-docId-3">
                     </div>
                     <div id="prompt-block-FUSION" class="prompt-block hidden" data-level="FUSION">
                         <div class="prompt-label"><span class="text-fuchsia-400">Fusion Prompt</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
                         <input type="text" id="prompt-title-FUSION" class="form-input mb-2 text-sm" placeholder="Fusion Title">
                         <textarea id="prompt-text-FUSION" class="form-input text-sm font-mono" rows="4" placeholder="Fusion prompt text..."></textarea>
-                        <div class="text-right text-xs mt-1 prompt-char-count" style="color:var(--on-surface-var);"></div>
                         <input type="hidden" id="prompt-docId-FUSION">
                     </div>
                     <div id="prompt-block-EK" class="prompt-block" data-level="EK">
                         <div class="prompt-label"><span>Extra / Alternative Prompt</span><span class="saved-indicator"><span class="material-symbols-outlined text-sm">check_circle</span> Saved</span></div>
                         <input type="text" id="prompt-title-EK" class="form-input mb-2 text-sm" placeholder="Extra Prompt Title">
                         <textarea id="prompt-text-EK" class="form-input text-sm font-mono" rows="4" placeholder="Extra prompt text..."></textarea>
-                        <div class="text-right text-xs mt-1 prompt-char-count" style="color:var(--on-surface-var);"></div>
                         <input type="hidden" id="prompt-docId-EK">
                     </div>
                 </div>
@@ -646,119 +460,26 @@
 <div id="export-modal" class="modal-backdrop hidden" onclick="closeExportModal()">
     <div class="modal-content !max-w-sm" onclick="event.stopPropagation()">
         <button class="icon-button absolute top-2 right-2" onclick="closeExportModal()"><span class="material-symbols-outlined">close</span></button>
-        <h2 class="text-xl font-bold mb-1" style="color: var(--primary);">Download Prompts</h2>
-        <p class="text-sm mb-5" style="color:var(--on-surface-var);">Exports as <code style="background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:4px;">.md</code> — AU prompts grouped under each character.</p>
-
-        <style>
-        .export-toggle-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px; border-radius: 14px; cursor: pointer;
-            border: 1.5px solid var(--outline-var);
-            background: var(--surface-high);
-            transition: border-color 0.2s, background 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .export-toggle-row.disabled-row { opacity: 0.4; pointer-events: none; }
-        .export-toggle-row:active { background: rgba(255,255,255,0.06); }
-        .export-toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-        .export-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-        .export-toggle-slider {
-            position: absolute; inset: 0; border-radius: 99px;
-            background: var(--outline-var); transition: background 0.2s;
-        }
-        .export-toggle-slider::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: white; transition: transform 0.2s;
-        }
-        .export-toggle input:checked + .export-toggle-slider { background: var(--primary); }
-        .export-toggle input:checked + .export-toggle-slider::after { transform: translateX(20px); }
-        .export-toggle.au-toggle input:checked + .export-toggle-slider { background: var(--au); }
-        .export-section-label {
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.07em;
-            text-transform: uppercase; color: var(--on-surface-var);
-            padding: 0 2px; margin-bottom: 8px; margin-top: 4px;
-        }
-        #au-sub-options { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; max-height: 200px; opacity: 1; }
-        #au-sub-options.collapsed { max-height: 0; opacity: 0; pointer-events: none; }
-        </style>
-
-        <div class="flex flex-col gap-2 mb-6">
-            <!-- Include Retired -->
-            <label class="export-toggle-row" for="export-include-retired">
-                <div class="flex flex-col gap-0.5 pr-3">
-                    <span class="text-sm font-semibold">Include Retired</span>
-                </div>
-                <div class="export-toggle">
-                    <input type="checkbox" id="export-include-retired">
-                    <div class="export-toggle-slider"></div>
-                </div>
+        <h2 class="text-xl font-bold mb-4" style="color: var(--primary);">Download Prompts</h2>
+        <p class="text-sm text-gray-400 mb-4">Downloads all prompts in the library as a single .txt file.</p>
+        <div class="flex flex-col gap-3 mb-6">
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
+                <input type="checkbox" id="export-include-retired" class="w-5 h-5 accent-[var(--primary)]">
+                <span class="text-sm font-medium">Include Retired</span>
             </label>
-
-            <!-- AU section header -->
-            <div class="export-section-label" style="margin-top:8px;">Alt. Universe Prompts</div>
-
-            <!-- Include Unlocked AUs -->
-            <label class="export-toggle-row" for="export-include-au-unlocked" id="export-au-unlocked-row">
-                <div class="flex flex-col gap-0.5 pr-3">
-                    <span class="text-sm font-semibold" style="color:var(--au);">Include Unlocked AUs</span>
-                    <span class="text-xs" style="color:var(--on-surface-var);">Publicly visible universes</span>
-                </div>
-                <div class="export-toggle au-toggle">
-                    <input type="checkbox" id="export-include-au-unlocked" checked onchange="syncAuToggleState()">
-                    <div class="export-toggle-slider"></div>
-                </div>
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
+                <input type="checkbox" id="export-include-eastereggs" class="w-5 h-5 accent-[var(--primary)]">
+                <span class="text-sm font-medium">Include Easter Eggs</span>
             </label>
-
-            <!-- Include Locked AUs — indented sub-option -->
-            <div id="au-sub-options" style="padding-left:12px;">
-                <label class="export-toggle-row" for="export-include-au-locked" style="border-color:rgba(100,220,180,0.25); background:rgba(100,220,180,0.04);">
-                    <div class="flex flex-col gap-0.5 pr-3">
-                        <span class="text-sm font-semibold" style="color:rgba(var(--au-rgb),0.7);">Include Locked AUs 🔒</span>
-                        <span class="text-xs" style="color:var(--on-surface-var);">Secret / hidden universes</span>
-                    </div>
-                    <div class="export-toggle au-toggle">
-                        <input type="checkbox" id="export-include-au-locked">
-                        <div class="export-toggle-slider"></div>
-                    </div>
-                </label>
-            </div>
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg" style="background-color: var(--surface-high); border: 1px solid var(--outline-var);">
+                <input type="checkbox" id="export-include-au" class="w-5 h-5 accent-[var(--au)]">
+                <span class="text-sm font-medium" style="color: var(--on-au-container);">Include AU Prompts</span>
+            </label>
         </div>
         <button id="export-action-btn" class="btn btn-primary w-full" onclick="downloadPrompts()">
-            <span class="material-symbols-outlined">download</span> Export as .md
+            <span class="material-symbols-outlined">download</span> Start Download
         </button>
         <p id="export-status" class="text-center text-sm mt-2 text-gray-400"></p>
-        <div class="mt-4 pt-3 border-t" style="border-color:var(--outline-var);">
-            <button class="btn btn-secondary w-full text-sm py-2" onclick="closeExportModal();openBulkTitleModal()">
-                <span class="material-symbols-outlined" style="font-size:18px;">title</span>
-                Manage Prompt Titles
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- BULK TITLE DELETE MODAL -->
-<div id="bulk-title-modal" class="modal-backdrop hidden" onclick="closeBulkTitleModal()">
-    <div class="modal-content !max-w-screen-md" style="max-height:90vh;overflow-y:auto;" onclick="event.stopPropagation()">
-        <button class="icon-button absolute top-2 right-2" onclick="closeBulkTitleModal()"><span class="material-symbols-outlined">close</span></button>
-        <h2 class="text-2xl font-bold mb-1" style="color:var(--primary);">Prompt Titles</h2>
-        <p class="text-sm mb-4 pb-3 border-b" style="color:var(--on-surface-var);border-color:var(--outline-var);">
-            Select titles to delete. Prompt text is preserved — only the title field is cleared.
-        </p>
-        <div class="flex items-center gap-4 mb-4 flex-wrap">
-            <label class="flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" id="bulk-select-all" class="w-4 h-4 accent-[var(--primary)]">
-                <span class="text-sm font-semibold">Select All</span>
-            </label>
-            <button class="btn btn-danger text-sm py-2 px-4" onclick="deleteBulkTitles()">
-                <span class="material-symbols-outlined text-sm">delete_sweep</span>Delete Selected Titles
-            </button>
-            <span id="bulk-selected-count" class="text-xs text-gray-400"></span>
-        </div>
-        <div id="bulk-title-list" class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto pr-1">
-            <p class="text-center text-gray-400 py-8">Loading…</p>
-        </div>
-        <p id="bulk-title-status" class="text-center text-sm mt-3 text-gray-400 min-h-[1.25rem]"></p>
     </div>
 </div>
 
@@ -823,13 +544,7 @@
     <div class="modal-content !max-w-screen-sm" style="max-height: 90vh; overflow-y: auto;" onclick="event.stopPropagation()">
         <button class="icon-button absolute top-2 right-2" onclick="closeAuEntryModal()"><span class="material-symbols-outlined">close</span></button>
         <h2 class="text-2xl font-bold mb-2" style="color: var(--au);">Add / Edit AU Entry</h2>
-        <p class="text-sm text-gray-400" id="au-entry-modal-subtitle"></p>
-
-        <!-- AU selector (shown when opened from character list) -->
-        <div id="au-entry-au-picker" class="hidden mb-4 mt-3">
-            <label class="block text-xs font-semibold mb-1" style="color:var(--on-surface-var);">Universe</label>
-            <select id="au-entry-au-select" class="form-select" style="font-size:0.875rem;padding:8px 10px;"></select>
-        </div>
+        <p class="text-sm text-gray-400 mb-6" id="au-entry-modal-subtitle"></p>
 
         <!-- Character/Fusion selector for new entry -->
         <div id="au-entry-selector-section">
@@ -843,9 +558,9 @@
         </div>
 
         <div id="au-entry-image-fields" class="flex flex-col gap-4">
-            <!-- max star image for characters -->
+            <!-- 3★ image for characters -->
             <div id="au-star3-field">
-                <label class="block text-sm font-medium mb-1">Max Yıldız AU Görseli <span class="text-xs text-gray-400">(max evrim görseli)</span></label>
+                <label class="block text-sm font-medium mb-1">3★ AU Image <span class="text-xs text-gray-400">(character alternative)</span></label>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <select class="form-select sm:w-1/3 image-upload-method"><option value="imgbb">ImgBB Upload</option><option value="imgbb2">ImgBB 2 Upload</option><option value="vgy">VGY.ME Upload</option><option value="link">Direct Link</option></select>
                     <input type="file" class="form-input flex-grow image-upload-file" id="au-star3-file">
@@ -884,18 +599,18 @@
 
 <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyDqFUuGo9cVOniOta5Takvwtlnb5SIYl8A",
-    authDomain: "character-gallery-v2.firebaseapp.com",
-    projectId: "character-gallery-v2",
-    storageBucket: "character-gallery-v2.firebasestorage.app",
-    messagingSenderId: "81948037217",
-    appId: "1:81948037217:web:2b256c16c53634a17d9a20"
+    apiKey: "AIzaSyDrEU_QEuvf960ZPxo29n6x8N9K7yGIkCQ",
+    authDomain: "karaktergalerisi-dc337.firebaseapp.com",
+    projectId: "karaktergalerisi-dc337",
+    storageBucket: "karaktergalerisi-dc337.firebasestorage.app",
+    messagingSenderId: "486669559067",
+    appId: "1:486669559067:web:20c76a78a41d9bc0bbdfbe"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let apiKeys = { imgbb_main_key: null, imgbb2_key: null, vgy_user_key: null };
-let characters = [], dismissed = [];
+let characters = [], easterEggs = [], dismissed = [];
 let alternativeUniverses = [];
 let editingItemId = null, editingItemType = null, selectorTargetInput = null, existingPrompts = {};
 
@@ -904,7 +619,7 @@ let selectedAuId = null;         // Currently viewed AU in AU tab
 let auEntryEditingCharId = null; // Char/fusion being edited in AU entry modal
 let auEntrySelectorCharId = null;// Selected char in AU entry modal (new entry)
 
-const viewState = { filter: 'all', sortBy: 'name_asc', typeFilter: 'all', irkFilter: 'all' };
+const viewState = { filter: 'all', sortBy: 'name_asc' };
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────
 const dom = {};
@@ -949,7 +664,8 @@ Object.assign(dom, {
     qpEmpty:            document.getElementById('qp-empty'),
     exportModal:        document.getElementById('export-modal'),
     exportIncludeRetired: document.getElementById('export-include-retired'),
-    exportIncludeAu:    null, // replaced by export-include-au-unlocked / export-include-au-locked
+    exportIncludeEasterEggs: document.getElementById('export-include-eastereggs'),
+    exportIncludeAu:    document.getElementById('export-include-au'),
     exportStatus:       document.getElementById('export-status'),
     exportBtn:          document.getElementById('export-action-btn'),
     // AU tab
@@ -976,8 +692,6 @@ Object.assign(dom, {
     auEntrySelectorSection: document.getElementById('au-entry-selector-section'),
     auEntryPrompt:      document.getElementById('au-entry-prompt'),
     auEntryStatus:      document.getElementById('au-entry-status'),
-    auEntryAuPicker:    document.getElementById('au-entry-au-picker'),
-    auEntryAuSelect:    document.getElementById('au-entry-au-select'),
 });
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -1069,7 +783,7 @@ function renderCharacterSelector(q) {
     filtered.forEach(char => {
         const item = document.createElement('div');
         item.className = 'character-selector-item';
-        item.innerHTML = `<img src="${char.previewUrl || char.imageUrl}" alt="${char.name}" class="w-12 h-12 object-cover rounded-md"><div><p class="font-bold">${char.name}</p><p class="text-sm text-gray-400">ID: ${char.id}</p></div>`;
+        item.innerHTML = `<img src="${char.imageUrl}" alt="${char.name}" class="w-12 h-12 object-cover rounded-md"><div><p class="font-bold">${char.name}</p><p class="text-sm text-gray-400">ID: ${char.id}</p></div>`;
         item.onclick = () => selectCharacter(char);
         dom.selectorGrid.appendChild(item);
     });
@@ -1115,20 +829,10 @@ function renderAdminPanel() {
 
     dom.adminGrid.innerHTML = '';
     const q = dom.searchInput.value.toLowerCase().trim();
-    let items;
+    let items = [...characters, ...easterEggs, ...dismissed];
     if (viewState.filter === 'available') {
         const pIds = new Set(characters.filter(c=>c.isFusion).flatMap(f=>f.fusionPartners||[]));
         items = characters.filter(c=>!c.isFusion && !pIds.has(c.id));
-    } else {
-        switch (viewState.typeFilter) {
-            case 'character': items = characters.filter(c => !c.isFusion); break;
-            case 'fusion':    items = characters.filter(c => c.isFusion);  break;
-            case 'retired':   items = [...dismissed]; break;
-            default:          items = [...characters, ...dismissed];
-        }
-    }
-    if (viewState.irkFilter !== 'all') {
-        items = items.filter(i => i.irk === viewState.irkFilter);
     }
     items.sort((a,b) => {
         if (viewState.sortBy === 'date_desc') return getDate(b)-getDate(a);
@@ -1142,12 +846,12 @@ function renderAdminPanel() {
         const card = document.createElement('div');
         const isRetired = !!item.isRetired;
         card.className = `item-card ${isRetired?'retired':''}`;
-        const isFusion = item.isFusion;
-        const nameClass = isFusion ? 'font-fantastical' : '';
+        const isFusion = item.isFusion, isEE = !!item.originalCharacterId;
+        const nameClass = (isFusion||isEE) ? 'font-fantastical' : '';
 
         let imgBlock;
-        if (isFusion) {
-            const url = item.previewUrl || '';
+        if (isFusion||isEE) {
+            const url = (isFusion ? item.previewUrl : item.imageUrl) || '';
             imgBlock = `<div class="w-16 h-24 md:w-32 md:h-48 flex-shrink-0 rounded-lg overflow-hidden cursor-zoom-in" onclick="enlargeImage(event,'${url}')"><img src="${url}" alt="${item.name}" class="w-full h-full object-cover" loading="lazy"></div>`;
         } else {
             const e2 = item.evolutions?.find(e=>e.star===2), e3 = item.evolutions?.find(e=>e.star===3);
@@ -1167,10 +871,12 @@ function renderAdminPanel() {
                 <button class="icon-button retire-button" data-id="${item.id}" data-type="${item.type}" data-action="unretire" title="Restore"><span class="material-symbols-outlined">settings_backup_restore</span></button>
                 <button class="icon-button delete-button" data-id="${item.id}" data-type="${item.type}" title="Delete Permanently"><span class="material-symbols-outlined">delete_forever</span></button>`;
         } else {
-            const type = isFusion ? 'fusion' : 'character';
+            const type = isFusion ? 'fusion' : (isEE ? 'easterEgg' : 'character');
+            // AU button only for non-EE
+            const auBtn = !isEE ? `<button class="icon-button au-button" data-id="${item.id}" data-type="${type}" title="Manage AU"><span class="material-symbols-outlined">auto_fix_high</span></button>` : '';
             actionBtns = `
                 <button class="icon-button view-prompt-button" data-id="${item.id}" data-name="${item.name}" title="View Prompts"><span class="material-symbols-outlined" style="color:var(--primary);">description</span></button>
-                <button class="icon-button au-button" data-id="${item.id}" data-type="${type}" title="Manage AU"><span class="material-symbols-outlined">auto_fix_high</span></button>
+                ${auBtn}
                 <button class="icon-button retire-button" data-id="${item.id}" data-type="${type}" data-action="retire" title="Retire"><span class="material-symbols-outlined">work_history</span></button>
                 <button class="icon-button edit-button" data-id="${item.id}" data-type="${type}" title="Edit"><span class="material-symbols-outlined">edit</span></button>
                 <button class="icon-button delete-button" data-id="${item.id}" data-type="${type}" title="Delete"><span class="material-symbols-outlined">delete</span></button>`;
@@ -1179,53 +885,18 @@ function renderAdminPanel() {
         const retiredBadge = isRetired ? `<p class="text-xs font-bold mt-1" style="color:var(--warning);">RETIRED</p>` : '';
         const dateHtml = item.eklenmeTarihi ? `<p class="text-xs text-gray-400 mt-1">${getDate(item).toLocaleDateString('en-US')}</p>` : '<p class="text-xs text-red-400 mt-1">No date</p>';
 
-        // AU coverage badges (icon + colored circle)
-        const auDots = Object.keys(item.auData||{}).filter(auId => {
+        // AU coverage dots
+        const auDots = !isEE ? Object.keys(item.auData||{}).filter(auId => {
             const def = alternativeUniverses.find(a=>a.id===auId);
             const auEntry = item.auData[auId];
-            return def && (isFusion ? auEntry?.fusionImageUrl : auEntry?.maxStarImageUrl);
+            return def && (isFusion ? auEntry?.fusionImageUrl : auEntry?.star3ImageUrl);
         }).map(auId => {
             const def = alternativeUniverses.find(a=>a.id===auId);
-            const color = def?.color || '#64dcb4';
-            const icon  = def?.icon  || 'auto_fix_high';
-            return `<span title="${def?.name||auId}" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:${color}22;border:2px solid ${color};flex-shrink:0;"><span class="material-symbols-outlined" style="font-size:14px;color:${color};line-height:1;">${icon}</span></span>`;
-        }).join('');
-        const auDotsHtml = auDots ? `<div class="flex gap-1.5 flex-wrap mt-1.5 items-center"><span class="text-xs text-gray-500 mr-0.5">AU:</span>${auDots}</div>` : '';
+            return `<span title="${def?.name||auId}" style="width:8px;height:8px;border-radius:50%;background:${def?.color||'#64dcb4'};display:inline-block;border:1px solid rgba(255,255,255,0.2);"></span>`;
+        }).join('') : '';
+        const auDotsHtml = auDots ? `<div class="flex gap-1 flex-wrap mt-1 items-center"><span class="text-xs text-gray-500 mr-1">AU:</span>${auDots}</div>` : '';
 
-        const irkBadge = item.irk ? `<span class="text-xs px-2 py-0.5 rounded-full font-medium mt-1 inline-block" style="background:rgba(var(--primary-rgb),0.15);color:var(--primary);border:1px solid rgba(var(--primary-rgb),0.3);">${item.irk}</span>` : '';
-
-        // Fusion mini-row (only for non-fusion characters) — scrollable name links
-        let fusionMiniRow = '';
-        if (!isFusion) {
-            const charFusions = characters.filter(c => c.isFusion && c.fusionPartners?.includes(item.id));
-            if (charFusions.length) {
-                const nameLinks = charFusions.map(f =>
-                    `<a href="#card-${f.id}" class="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 transition-colors"
-                        style="background:rgba(224,179,255,0.12);color:#e0b3ff;border:1px solid rgba(224,179,255,0.25);"
-                        onclick="event.preventDefault();document.getElementById('card-${f.id}')?.scrollIntoView({behavior:'smooth',block:'center'});"
-                    ><span class="material-symbols-outlined" style="font-size:11px;vertical-align:-1px;">merge_type</span> ${f.name}</a>`
-                ).join('');
-                fusionMiniRow = `<div class="flex items-center gap-1 mt-1.5 flex-wrap">${nameLinks}</div>`;
-            }
-        }
-
-        // For fusion cards — show parent name links
-        let parentRow = '';
-        if (isFusion && item.fusionPartners?.length) {
-            const allPool = [...characters, ...dismissed];
-            const parentLinks = item.fusionPartners.map(pid => {
-                const p = allPool.find(c => c.id === pid);
-                if (!p) return `<span class="text-xs text-red-400">Unknown</span>`;
-                return `<a href="#card-${pid}" class="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 transition-colors"
-                    style="background:rgba(var(--primary-rgb),0.1);color:var(--primary);border:1px solid rgba(var(--primary-rgb),0.25);"
-                    onclick="event.preventDefault();document.getElementById('card-${pid}')?.scrollIntoView({behavior:'smooth',block:'center'});"
-                >${p.name}</a>`;
-            }).join('<span class="text-xs text-gray-500">+</span>');
-            parentRow = `<div class="flex items-center gap-1 mt-1.5 flex-wrap">${parentLinks}</div>`;
-        }
-
-        card.id = `card-${item.id}`;
-        card.innerHTML = `${imgBlock}<div class="flex-grow min-w-0"><h4 class="font-bold text-lg truncate ${nameClass}">${item.name}</h4><p class="text-sm text-gray-400">ID: ${item.id}</p>${irkBadge}<div class="flex mt-1">${getStarEmojis(isFusion, isFusion?4:1, 'star')}</div>${dateHtml}${retiredBadge}${parentRow}${fusionMiniRow}${auDotsHtml}</div><div class="flex-shrink-0 flex flex-col gap-1">${actionBtns}</div>`;
+        card.innerHTML = `${imgBlock}<div class="flex-grow min-w-0"><h4 class="font-bold text-lg truncate ${nameClass}">${item.name}</h4><p class="text-sm text-gray-400">ID: ${item.id}</p><div class="flex mt-1">${getStarEmojis(isFusion, isFusion?4:(isEE?1:1), isEE?'auto_awesome':'star')}</div>${dateHtml}${retiredBadge}${auDotsHtml}</div><div class="flex-shrink-0 flex flex-col gap-1">${actionBtns}</div>`;
         dom.adminGrid.appendChild(card);
     });
     setupActionListeners();
@@ -1299,7 +970,7 @@ function renderAuEntries() {
     const entries = all.filter(c => {
         const e = c.auData?.[selectedAuId];
         if (!e) return false;
-        return c.isFusion ? !!e.fusionImageUrl : !!e.maxStarImageUrl;
+        return c.isFusion ? !!e.fusionImageUrl : !!e.star3ImageUrl;
     });
 
     dom.auEntriesGrid.innerHTML = '';
@@ -1311,9 +982,8 @@ function renderAuEntries() {
 
     entries.forEach(char => {
         const entry = char.auData[selectedAuId];
-        const imgUrl = char.isFusion ? entry.fusionImageUrl : entry.maxStarImageUrl;
-        const maxStar = 1 + (char.evolutions?.length || 0);
-        const origUrl = char.isFusion ? (char.previewUrl || char.imageUrl) : (char.evolutions?.find(e=>e.star===maxStar)?.imageUrl || char.imageUrl);
+        const imgUrl = char.isFusion ? entry.fusionImageUrl : entry.star3ImageUrl;
+        const origUrl = char.isFusion ? (char.previewUrl || char.imageUrl) : (char.evolutions?.find(e=>e.star===3)?.imageUrl || char.imageUrl);
         const card = document.createElement('div');
         card.className = 'au-entry-card';
         card.innerHTML = `
@@ -1407,20 +1077,11 @@ async function deleteAu(auId) {
 
 // AU Entry CRUD
 function openAuEntryModalForChar(charId) {
-    // Called from character list AU button — no tab switch needed; show inline AU dropdown
+    // Called from character list AU button → switch to AU tab, open entry modal
+    document.querySelector('.tab-btn[data-tab="au"]').click();
     if (!alternativeUniverses.length) { alert("Create a universe first."); return; }
-    if (!selectedAuId) selectedAuId = alternativeUniverses[0].id;
-
-    // Populate AU picker dropdown
-    dom.auEntryAuSelect.innerHTML = alternativeUniverses.map(au =>
-        `<option value="${au.id}" ${au.id === selectedAuId ? 'selected' : ''}>${au.name || au.id}</option>`
-    ).join('');
-    dom.auEntryAuPicker.classList.remove('hidden');
-    dom.auEntryAuSelect.onchange = () => {
-        selectedAuId = dom.auEntryAuSelect.value;
-        openAuEntryModalForCharInAu(charId);
-    };
-
+    // If no AU selected, pick first
+    if (!selectedAuId) { selectedAuId = alternativeUniverses[0].id; renderAuDefinitions(); renderAuEntries(); }
     openAuEntryModalForCharInAu(charId);
 }
 
@@ -1430,13 +1091,8 @@ function openAuEntryModalForCharInAu(charId) {
     const char = [...characters, ...dismissed].find(c => c.id === charId);
     if (!char) return;
 
-    // Update subtitle only when not using the inline picker
-    if (dom.auEntryAuPicker.classList.contains('hidden')) {
-        const au = alternativeUniverses.find(a => a.id === selectedAuId);
-        dom.auEntryModalSubtitle.textContent = `Universe: ${au?.name || selectedAuId}`;
-    } else {
-        dom.auEntryModalSubtitle.textContent = '';
-    }
+    const au = alternativeUniverses.find(a => a.id === selectedAuId);
+    dom.auEntryModalSubtitle.textContent = `Universe: ${au?.name || selectedAuId}`;
 
     // Hide selector, show selected
     dom.auEntrySelectorSection.classList.add('hidden');
@@ -1454,9 +1110,9 @@ function openAuEntryModalForCharInAu(charId) {
     const star3Preview = document.getElementById('au-star3-preview');
     const fusionPreview = document.getElementById('au-fusion-preview');
 
-    if (existing?.maxStarImageUrl) {
-        star3Link.value = existing.maxStarImageUrl;
-        star3Preview.src = existing.maxStarImageUrl;
+    if (existing?.star3ImageUrl) {
+        star3Link.value = existing.star3ImageUrl;
+        star3Preview.src = existing.star3ImageUrl;
         document.getElementById('au-star3-preview-wrap').classList.remove('hidden');
         // set method to link
         const sel = document.querySelector('#au-star3-field .image-upload-method');
@@ -1489,7 +1145,6 @@ function openAuEntryModalNew() {
     auEntryEditingCharId = null;
     auEntrySelectorCharId = null;
 
-    dom.auEntryAuPicker.classList.add('hidden');
     const au = alternativeUniverses.find(a => a.id === selectedAuId);
     dom.auEntryModalSubtitle.textContent = `Universe: ${au?.name || selectedAuId}`;
 
@@ -1511,8 +1166,6 @@ function openAuEntryModalNew() {
 
 function closeAuEntryModal() {
     dom.auEntryModal.classList.remove('visible'); dom.auEntryModal.classList.add('hidden');
-    dom.auEntryAuPicker.classList.add('hidden');
-    if (dom.auEntryAuSelect) dom.auEntryAuSelect.onchange = null;
     auEntryEditingCharId = null; auEntrySelectorCharId = null;
 }
 
@@ -1570,7 +1223,7 @@ async function saveAuEntry() {
 
         const prompt = dom.auEntryPrompt.value.trim();
         const entryData = {};
-        if (star3Url)  entryData.maxStarImageUrl = star3Url;
+        if (star3Url)  entryData.star3ImageUrl = star3Url;
         if (fusionUrl) entryData.fusionImageUrl = fusionUrl;
         if (prompt)    entryData.prompt = prompt;
 
@@ -1602,19 +1255,22 @@ async function deleteAuEntry(charId) {
     } catch (e) { alert(`Error: ${e.message}`); }
 }
 
-// ─── Form (Characters/Fusions) ───────────────────────────────────────────────
+// ─── Form (Characters/Fusions/EE) ────────────────────────────────────────────
 function toggleFormFields() {
     const t = dom.itemTypeSelect.value;
     dom.addEditForm.querySelector('#character-fields').classList.toggle('hidden', t !== 'character');
     dom.addEditForm.querySelector('#fusion-fields').classList.toggle('hidden', t !== 'fusion');
     dom.addEditForm.querySelector('#fusion-preview-image-field').classList.toggle('hidden', t !== 'fusion');
+    dom.addEditForm.querySelector('#easter-egg-fields').classList.toggle('hidden', t !== 'easterEgg');
     dom.addEditForm.querySelector('#main-image-container > label').textContent =
-        t === 'fusion' ? 'Fusion GIF (Optional)' : 'Main Image';
-    dom.promptSection.classList.remove('hidden');
-    const show1 = t==='character', showF = t==='fusion';
-    ['prompt-block-1','prompt-block-2','prompt-block-3'].forEach(id => document.getElementById(id).classList.toggle('hidden', !show1));
-    document.getElementById('prompt-block-FUSION').classList.toggle('hidden', !showF);
-    document.getElementById('prompt-block-EK').classList.remove('hidden');
+        t === 'easterEgg' ? 'Easter Egg Image' : (t === 'fusion' ? 'Main Fusion Image (GIF – Optional)' : 'Main Image');
+    dom.promptSection.classList.toggle('hidden', t === 'easterEgg');
+    if (t !== 'easterEgg') {
+        const show1 = t==='character', showF = t==='fusion';
+        ['prompt-block-1','prompt-block-2','prompt-block-3'].forEach(id => document.getElementById(id).classList.toggle('hidden', !show1));
+        document.getElementById('prompt-block-FUSION').classList.toggle('hidden', !showF);
+        document.getElementById('prompt-block-EK').classList.remove('hidden');
+    }
 }
 
 function setupImageInputTogglers() {
@@ -1629,106 +1285,8 @@ function setupImageInputTogglers() {
             const isLink = e.target.value === 'link';
             f.classList.toggle('hidden', isLink);
             l.classList.toggle('hidden', !isLink);
-            // reset preview when method changes
-            const container = p.closest('[id$="-container"], [id$="-field"]') || p.parentElement;
-            _hidePreview(container);
         });
     });
-
-    // Image preview: file input
-    document.querySelectorAll('.image-upload-file').forEach(inp => {
-        if (inp.dataset.preview) return;
-        inp.dataset.preview = '1';
-        inp.addEventListener('change', e => {
-            const file = e.target.files[0];
-            const container = inp.closest('[class*="flex flex-col"]')?.parentElement || inp.parentElement.parentElement;
-            if (!file) { _hidePreview(container); return; }
-            const reader = new FileReader();
-            reader.onload = ev => _showPreview(container, ev.target.result);
-            reader.readAsDataURL(file);
-        });
-    });
-
-    // Image preview: link input (debounced)
-    document.querySelectorAll('.image-upload-link').forEach(inp => {
-        if (inp.dataset.preview) return;
-        inp.dataset.preview = '1';
-        let t;
-        inp.addEventListener('input', e => {
-            clearTimeout(t);
-            const url = e.target.value.trim();
-            const container = inp.closest('[class*="flex flex-col"]')?.parentElement || inp.parentElement.parentElement;
-            if (!url) { _hidePreview(container); return; }
-            t = setTimeout(() => _showPreview(container, url), 600);
-        });
-    });
-}
-
-function _showPreview(container, src) {
-    const wrap = container?.querySelector?.('.img-preview');
-    if (!wrap) return;
-    const img = wrap.querySelector('img');
-    img.onerror = () => { wrap.classList.add('hidden'); };
-    img.onload  = () => { wrap.classList.remove('hidden'); };
-    img.src = src;
-}
-function _hidePreview(container) {
-    const wrap = container?.querySelector?.('.img-preview');
-    if (wrap) { wrap.classList.add('hidden'); const img = wrap.querySelector('img'); if (img) img.src = ''; }
-}
-
-// ── Prompt char counters ──────────────────────────────────────────────────────
-function setupPromptCharCounters() {
-    document.querySelectorAll('.prompt-block').forEach(block => {
-        const ta = block.querySelector('textarea');
-        const counter = block.querySelector('.prompt-char-count');
-        if (!ta || !counter || ta.dataset.counter) return;
-        ta.dataset.counter = '1';
-        const update = () => {
-            const n = ta.value.length;
-            counter.textContent = n > 0 ? `${n.toLocaleString()} chars` : '';
-        };
-        ta.addEventListener('input', update);
-        update();
-    });
-}
-
-// ── ID rename warning ─────────────────────────────────────────────────────────
-function setupIdRenameWarning() {
-    const idInput = document.getElementById('id-input');
-    const warning = document.getElementById('id-rename-warning');
-    if (!idInput || !warning || idInput.dataset.renameWatcher) return;
-    idInput.dataset.renameWatcher = '1';
-    idInput.addEventListener('input', () => {
-        if (!editingItemId) return;
-        const changed = idInput.value.trim() !== editingItemId;
-        warning.classList.toggle('hidden', !changed);
-    });
-}
-
-// ── Duplicate name warning ────────────────────────────────────────────────────
-function setupDuplicateNameWarning() {
-    const nameInput = document.getElementById('name-input');
-    const warning   = document.getElementById('duplicate-name-warning');
-    const warningTx = document.getElementById('duplicate-name-text');
-    if (!nameInput || !warning || nameInput.dataset.dupWatcher) return;
-    nameInput.dataset.dupWatcher = '1';
-    nameInput.addEventListener('blur', () => {
-        const val = nameInput.value.trim().toLowerCase();
-        if (!val) { warning.classList.add('hidden'); return; }
-        const all = [...characters, ...dismissed];
-        const matches = all.filter(c => {
-            if (editingItemId && c.id === editingItemId) return false;
-            return c.name.toLowerCase().includes(val) || val.includes(c.name.toLowerCase());
-        });
-        if (matches.length) {
-            warningTx.textContent = `Similar name exists: ${matches.map(c=>c.name).slice(0,3).join(', ')}`;
-            warning.classList.remove('hidden');
-        } else {
-            warning.classList.add('hidden');
-        }
-    });
-    nameInput.addEventListener('focus', () => warning.classList.add('hidden'));
 }
 
 function resetForm() {
@@ -1748,19 +1306,13 @@ function resetForm() {
         p.querySelector('.image-upload-link')?.classList.add('hidden');
         if(p.querySelector('.image-upload-link')) p.querySelector('.image-upload-link').value = '';
     });
-    // Clear image previews
-    document.querySelectorAll('.img-preview').forEach(w => { w.classList.add('hidden'); const img = w.querySelector('img'); if(img) img.src=''; });
     ['1','2','3','FUSION','EK'].forEach(l => {
         const t = document.getElementById(`prompt-title-${l}`);
         const tx = document.getElementById(`prompt-text-${l}`);
         const d = document.getElementById(`prompt-docId-${l}`);
         if(t) t.value=''; if(tx) tx.value=''; if(d) d.value='';
         document.querySelector(`#prompt-block-${l} .saved-indicator`)?.classList.remove('active');
-        document.querySelector(`#prompt-block-${l} .prompt-char-count`)?.textContent && (document.querySelector(`#prompt-block-${l} .prompt-char-count`).textContent = '');
     });
-    // Hide warnings
-    document.getElementById('id-rename-warning')?.classList.add('hidden');
-    document.getElementById('duplicate-name-warning')?.classList.add('hidden');
     dom.dateEditContainer.classList.add('hidden');
     ['fusionPartners_0','fusionPartners_1','originalCharacterId'].forEach(id => {
         const dp = document.getElementById(`${id}_display`);
@@ -1773,19 +1325,14 @@ function resetForm() {
 
 const loadItemForEdit = async (itemId, itemType) => {
     resetForm();
-    const item = [...characters, ...dismissed].find(i => i.id === itemId);
+    const item = [...characters, ...easterEggs, ...dismissed].find(i => i.id === itemId);
     if (!item) return alert("Record not found.");
     editingItemId = itemId; editingItemType = itemType;
     dom.formTitle.textContent = "Edit Record";
     dom.itemTypeSelect.value = itemType; dom.itemTypeSelect.disabled = true;
     const form = dom.addEditForm;
-    form.elements['id'].value = itemId; form.elements['id'].readOnly = false;
-    // Show rename warning listener (reset watcher so it re-attaches cleanly)
-    const idInp = document.getElementById('id-input');
-    if (idInp) { delete idInp.dataset.renameWatcher; }
-    setupIdRenameWarning();
+    form.elements['id'].value = itemId; form.elements['id'].readOnly = true;
     form.elements['name'].value = item.name || '';
-    form.elements['irk'].value = item.irk || '';
     if (item.eklenmeTarihi) {
         const d = item.eklenmeTarihi.toDate();
         form.elements['eklenmeTarihi'].value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1799,7 +1346,6 @@ const loadItemForEdit = async (itemId, itemType) => {
         const f = c.querySelector('.image-upload-file');
         const l = c.querySelector('.image-upload-link');
         s.value='link'; f?.classList.add('hidden'); l?.classList.remove('hidden'); if(l) l.value=url;
-        _showPreview(c, url);
     };
     setupImg('main-image-container', item.imageUrl);
     if (itemType==='character') { setupImg('evo1-image-container', item.evolutions?.find(e=>e.star===2)?.imageUrl); setupImg('evo2-image-container', item.evolutions?.find(e=>e.star===3)?.imageUrl); }
@@ -1814,6 +1360,7 @@ const loadItemForEdit = async (itemId, itemType) => {
         if(ip) ip.value=ch.id;
     };
     if (itemType==='fusion') { updateSel('fusionPartners_0', item.fusionPartners?.[0]); updateSel('fusionPartners_1', item.fusionPartners?.[1]); }
+    if (itemType==='easterEgg') updateSel('originalCharacterId', item.originalCharacterId);
 
     try {
         const snap = await db.collection('promptLibrary').where('charId','==',itemId).get();
@@ -1832,15 +1379,6 @@ const loadItemForEdit = async (itemId, itemType) => {
     } catch(e) { console.warn("Prompt load error:", e); }
 
     toggleFormFields();
-    // Refresh listeners for newly shown elements
-    setupImageInputTogglers();
-    setupPromptCharCounters();
-    // Trigger char counters for loaded prompt text
-    ['1','2','3','FUSION','EK'].forEach(l => {
-        const tx = document.getElementById(`prompt-text-${l}`);
-        const counter = document.querySelector(`#prompt-block-${l} .prompt-char-count`);
-        if (tx && counter) counter.textContent = tx.value.length > 0 ? `${tx.value.length.toLocaleString()} chars` : '';
-    });
     dom.cancelButton.classList.remove('hidden');
     dom.saveButton.textContent = 'Update';
     dom.addEditFormContainer.classList.remove('hidden');
@@ -1851,16 +1389,14 @@ const loadItemForEdit = async (itemId, itemType) => {
 const handleFormSubmit = async (e) => {
     e.preventDefault();
     const form = dom.addEditForm;
-    const newId = form.elements['id'].value.trim();
-    if (!newId || !firebase.auth().currentUser) return alert(!newId ? "ID cannot be empty." : "Please sign in.");
+    const id = form.elements['id'].value.trim();
+    if (!id || !firebase.auth().currentUser) return alert(!id ? "ID cannot be empty." : "Please sign in.");
     const isEditing = !!editingItemId;
-    const isRename  = isEditing && newId !== editingItemId;
     dom.saveButton.textContent = 'Uploading...'; dom.saveButton.disabled = true;
     try {
         const type = dom.itemTypeSelect.value;
-        const irkVal = form.elements['irk'].value.trim();
-        let data = { name: form.elements['name'].value.trim(), irk: irkVal || null };
-        const coll = 'characters';
+        let data = { name: form.elements['name'].value.trim() };
+        const coll = type==='easterEgg' ? 'easterEggs' : 'characters';
         if (isEditing) {
             const dv = form.elements['eklenmeTarihi'].value;
             if (dv) { const [y,m,d]=dv.split('-').map(Number); data.eklenmeTarihi=firebase.firestore.Timestamp.fromDate(new Date(y,m-1,d)); }
@@ -1870,68 +1406,41 @@ const handleFormSubmit = async (e) => {
             data.isFusion=false; data.star=1;
             const [u1,u2,u3] = await Promise.all([processImageInput('main-image-container'),processImageInput('evo1-image-container'),processImageInput('evo2-image-container')]);
             if (!u1&&!isEditing) throw new Error("Main image is required.");
-            // On rename, carry over existing images if no new one provided
-            if (isRename) {
-                const old = [...characters,...dismissed].find(c=>c.id===editingItemId);
-                data.imageUrl = u1 || old?.imageUrl || null;
-                data.evolutions = [];
-                const eu2 = u2 || old?.evolutions?.find(e=>e.star===2)?.imageUrl;
-                const eu3 = u3 || old?.evolutions?.find(e=>e.star===3)?.imageUrl;
-                if(eu2) data.evolutions.push({star:2,imageUrl:eu2});
-                if(eu3) data.evolutions.push({star:3,imageUrl:eu3});
-                // Carry over auData
-                if (old?.auData) data.auData = old.auData;
-            } else {
-                data.imageUrl=u1; data.evolutions=[];
-                if(u2) data.evolutions.push({star:2,imageUrl:u2});
-                if(u3) data.evolutions.push({star:3,imageUrl:u3});
-            }
+            data.imageUrl=u1; data.evolutions=[];
+            if(u2) data.evolutions.push({star:2,imageUrl:u2});
+            if(u3) data.evolutions.push({star:3,imageUrl:u3});
         } else if (type==='fusion') {
             data.isFusion=true; data.star=4;
             data.fusionPartners=[form.elements['fusionPartners_0'].value.trim(),form.elements['fusionPartners_1'].value.trim()].filter(Boolean);
             const [u1,u2] = await Promise.all([processImageInput('main-image-container'),processImageInput('preview-image-container')]);
-            if (isRename) {
-                const old = [...characters,...dismissed].find(c=>c.id===editingItemId);
-                data.imageUrl  = u1 || old?.imageUrl  || null;
-                data.previewUrl= u2 || old?.previewUrl || null;
-                if (old?.auData) data.auData = old.auData;
-            } else {
-                if (!u2&&!isEditing) throw new Error("Fusion preview image is required.");
-                data.imageUrl=u1||null; data.previewUrl=u2||null;
-            }
+            if (!u2&&!isEditing) throw new Error("Fusion preview image is required.");
+            data.imageUrl=u1||null; data.previewUrl=u2||null;
+        } else if (type==='easterEgg') {
+            data.originalCharacterId=form.elements['originalCharacterId'].value.trim();
+            data.imageUrl=await processImageInput('main-image-container');
+            if (!data.imageUrl&&!isEditing) throw new Error("Easter Egg image is required.");
         }
 
         const batch = db.batch();
-
-        // If renaming: delete old doc first
-        if (isRename) {
-            batch.delete(db.collection(coll).doc(editingItemId));
-        }
-
-        batch.set(db.collection(coll).doc(newId), data, {merge: !isRename});
+        batch.set(db.collection(coll).doc(id), data, {merge:true});
 
         if (type==='character'||type==='fusion') {
             const levels = type==='character' ? ['1','2','3','EK'] : ['FUSION','EK'];
             levels.forEach(suffix => {
                 const dbKey = suffix==='FUSION' ? 'FÜZYON' : suffix;
-                const tv  = document.getElementById(`prompt-title-${suffix}`)?.value.trim();
+                const tv = document.getElementById(`prompt-title-${suffix}`)?.value.trim();
                 const txv = document.getElementById(`prompt-text-${suffix}`)?.value.trim();
                 const docId = document.getElementById(`prompt-docId-${suffix}`)?.value;
                 if (txv) {
-                    // On rename: always create new prompt doc with new charId
-                    const ref = (isRename || !docId) ? db.collection('promptLibrary').doc() : db.collection('promptLibrary').doc(docId);
-                    batch.set(ref, { charId: newId, charName: data.name, charStar: dbKey, title: tv||'', prompt: txv,
-                        createdAt: (isRename || !docId) ? firebase.firestore.FieldValue.serverTimestamp() : (existingPrompts[suffix]?.createdAt || firebase.firestore.FieldValue.serverTimestamp())
-                    }, {merge: true});
-                    // On rename: delete old prompt doc
-                    if (isRename && docId) batch.delete(db.collection('promptLibrary').doc(docId));
+                    const ref = docId ? db.collection('promptLibrary').doc(docId) : db.collection('promptLibrary').doc();
+                    batch.set(ref, { charId:id, charName:data.name, charStar:dbKey, title:tv||`${data.name} ${dbKey}`, prompt:txv, createdAt: docId?(existingPrompts[suffix]?.createdAt||firebase.firestore.FieldValue.serverTimestamp()):firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
                 } else if (docId) {
                     batch.delete(db.collection('promptLibrary').doc(docId));
                 }
             });
         }
         await batch.commit();
-        alert(`Record ${isEditing ? (isRename ? 'renamed & updated' : 'updated') : 'saved'} successfully!`);
+        alert(`Record ${isEditing?'updated':'saved'} successfully!`);
         await fetchItems();
         dom.addEditFormContainer.classList.add('hidden');
         dom.toggleFormText.textContent='Add New'; dom.toggleFormIcon.textContent='add';
@@ -1942,8 +1451,8 @@ const handleFormSubmit = async (e) => {
 
 const deleteItem = async (itemId, itemType) => {
     const isRetired = dismissed.some(i=>i.id===itemId);
-    const coll = isRetired?'dismissed':'characters';
-    const item = [...characters,...dismissed].find(i=>i.id===itemId);
+    const coll = isRetired?'dismissed':(itemType==='easterEgg'?'easterEggs':'characters');
+    const item = [...characters,...easterEggs,...dismissed].find(i=>i.id===itemId);
     if (!item||!confirm(`${isRetired?'Permanently delete':'Delete'} "${item.name}"?`)) return;
     if (!firebase.auth().currentUser) return alert("Sign in first.");
     try { await db.collection(coll).doc(itemId).delete(); alert("Deleted."); await fetchItems(); }
@@ -1952,7 +1461,7 @@ const deleteItem = async (itemId, itemType) => {
 const retireItem = async (itemId, itemType) => {
     if (!confirm("Retire this record?")) return;
     if (!firebase.auth().currentUser) return alert("Sign in first.");
-    const coll = 'characters';
+    const coll = itemType==='easterEgg'?'easterEggs':'characters';
     const doc = await db.collection(coll).doc(itemId).get();
     if (!doc.exists) return alert("Record not found.");
     try {
@@ -1968,7 +1477,7 @@ const unretireItem = async (itemId) => {
     if (!doc.exists) return alert("Record not found.");
     let d = doc.data();
     const origType = d.type||'character';
-    const dest = 'characters';
+    const dest = origType==='easterEgg'?'easterEggs':'characters';
     delete d.type;
     try {
         await db.collection(dest).doc(itemId).set(d);
@@ -2030,108 +1539,26 @@ function updateAuthUI(user) {
 const fetchApiKeys = async () => {
     try {
         const doc = await db.collection('settings').doc('apiKeys').get();
-        if (doc.exists) { const d=doc.data(); apiKeys.imgbb_main_key=d.imgbb_main_key||null; apiKeys.imgbb2_key=d.imgbb2_key||null; apiKeys.vgy_user_key=d.vgy_user_key||null; return true; }
+        if (doc.exists) { const d=doc.data(); apiKeys.imgbb_main_key=d.imgbb_main_key||null; apiKeys.imgbb2_key=d.imgbb2_key||d.imgbb_easteregg_key||null; apiKeys.vgy_user_key=d.vgy_user_key||null; return true; }
         alert("Admin API keys not found."); return false;
     } catch(e) { alert("Failed to load API keys."); return false; }
 };
 
-// ─── Irk filter populate ──────────────────────────────────────────────────────
-function populateIrkFilter() {
-    const irkSet = new Set();
-    [...characters, ...dismissed].forEach(c => { if (c.irk) irkSet.add(c.irk); });
-    const sel = document.getElementById('irk-filter');
-    const current = sel.value;
-    sel.innerHTML = '<option value="all">All Races</option>';
-    [...irkSet].sort((a, b) => a.localeCompare(b, 'tr')).forEach(irk => {
-        const opt = document.createElement('option');
-        opt.value = irk; opt.textContent = irk;
-        sel.appendChild(opt);
-    });
-    if (current !== 'all' && [...irkSet].includes(current)) sel.value = current;
-    // Populate datalist for race combobox in form
-    const dl = document.getElementById('irk-datalist');
-    if (dl) {
-        dl.innerHTML = '';
-        [...irkSet].sort((a, b) => a.localeCompare(b, 'en')).forEach(irk => {
-            const opt = document.createElement('option');
-            opt.value = irk;
-            dl.appendChild(opt);
-        });
-    }
-}
-
-// ─── Stat Cards ───────────────────────────────────────────────────────────────
-function renderStats() {
-    const normals  = characters.filter(c => !c.isFusion);
-    const fusions  = characters.filter(c => c.isFusion);
-    const auCount  = alternativeUniverses.length;
-    const retCount = dismissed.length;
-
-    // Characters with all 3 evolutions = "full set"
-    const fullSets = normals.filter(c => c.imageUrl && c.evolutions?.length >= 2 && c.evolutions[1]?.imageUrl);
-
-    // Total unique images (1★ + all evos + fusions)
-    let imgCount = 0;
-    normals.forEach(c => {
-        if (c.imageUrl) imgCount++;
-        (c.evolutions || []).forEach(e => { if (e.imageUrl) imgCount++; });
-    });
-    fusions.forEach(f => { if (f.imageUrl) imgCount++; });
-
-    // Fusion usage: how many chars are fused at least once
-    const fusedIds = new Set(fusions.flatMap(f => f.fusionPartners || []));
-
-    // Most common race
-    const raceCounts = {};
-    [...normals, ...dismissed].forEach(c => { if (c.irk) raceCounts[c.irk] = (raceCounts[c.irk] || 0) + 1; });
-    const topRace = Object.entries(raceCounts).sort((a,b) => b[1]-a[1])[0];
-
-    // Newest char
-    const newest = [...normals].sort((a,b) => getDate(b) - getDate(a))[0];
-
-    const set = (id, val) => { const el = document.getElementById(id); if (el) { el.textContent = val; el.closest('.stat-card')?.classList.remove('skeleton'); } };
-    const setSub = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-    set('stat-chars',   normals.length);
-    setSub('stat-chars-sub', fusedIds.size > 0 ? `${fusedIds.size} in fusions` : '');
-
-    set('stat-fusions',  fusions.length);
-    setSub('stat-fusions-sub', fusions.length > 0 ? `${Math.round(fusions.length/Math.max(normals.length,1)*100)}% fusion rate` : '');
-
-    set('stat-aus',  auCount);
-    // Count locked vs unlocked AUs
-    const lockedAuCount   = alternativeUniverses.filter(a => a.locked).length;
-    const unlockedAuCount = alternativeUniverses.filter(a => !a.locked).length;
-    const auSubParts = [];
-    if (unlockedAuCount > 0) auSubParts.push(`${unlockedAuCount} unlocked`);
-    if (lockedAuCount > 0)   auSubParts.push(`${lockedAuCount} locked 🔒`);
-    setSub('stat-aus-sub', auSubParts.join(' · '));
-
-    set('stat-retired', retCount);
-    setSub('stat-retired-sub', topRace ? `Top: ${topRace[0]}` : '');
-
-    set('stat-images', imgCount);
-    setSub('stat-images-sub', newest ? `Latest: ${newest.name}` : '');
-
-    set('stat-evos', fullSets.length);
-    setSub('stat-evos-sub', normals.length > 0 ? `${Math.round(fullSets.length/normals.length*100)}% complete` : '');
-}
-
 // ─── Fetch ────────────────────────────────────────────────────────────────────
 const fetchItems = async () => {
     try {
-        const [cs,ds,aus] = await Promise.all([
+        const [cs,es,ds,aus] = await Promise.all([
             db.collection('characters').get(),
+            db.collection('easterEggs').get(),
             db.collection('dismissed').get(),
             db.collection('alternativeUniverses').get(),
         ]);
         characters = cs.docs.map(d=>({id:d.id,...d.data()}));
+        easterEggs = es.docs.map(d=>({id:d.id,...d.data()}));
         dismissed  = ds.docs.map(d=>({id:d.id,...d.data(),isRetired:true}));
         window.characters = characters;
         window.dismissed  = dismissed;
         alternativeUniverses = aus.docs.map(d=>({id:d.id,...d.data()}));
-        populateIrkFilter();
-        renderStats();
         renderAdminPanel();
         renderAuDefinitions();
         if (selectedAuId) renderAuEntries();
@@ -2143,22 +1570,6 @@ const fetchItems = async () => {
 
 // ─── Quick Prompt Modal ───────────────────────────────────────────────────────
 function closeQuickPromptModal() { dom.quickPromptModal.classList.remove('visible'); dom.quickPromptModal.classList.add('hidden'); }
-function copyQpText(idx, btn) {
-    const text = (window._qpTexts || [])[idx];
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">check</span>';
-        btn.style.background = 'rgba(102,187,106,.2)';
-        btn.style.color = '#66bb6a';
-        btn.style.borderColor = 'rgba(102,187,106,.4)';
-        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }, 1500);
-    }).catch(() => {
-        // Fallback: select textarea text
-        const ta = btn.closest('.relative').querySelector('textarea');
-        if (ta) { ta.select(); document.execCommand('copy'); }
-    });
-}
 async function openQuickPromptModal(charId, charName) {
     dom.qpCharName.textContent = charName;
     dom.qpContent.innerHTML=''; dom.qpLoading.classList.remove('hidden'); dom.qpContent.classList.add('hidden'); dom.qpEmpty.classList.add('hidden');
@@ -2168,21 +1579,20 @@ async function openQuickPromptModal(charId, charName) {
         if (snap.empty) { dom.qpLoading.classList.add('hidden'); dom.qpEmpty.classList.remove('hidden'); return; }
         const order = {'1':1,'2':2,'3':3,'FÜZYON':4,'EK':5};
         const prompts = snap.docs.map(d=>d.data()).sort((a,b)=>(order[a.charStar]||99)-(order[b.charStar]||99));
-        window._qpTexts = prompts.map(p => p.prompt);
         let html='';
-        prompts.forEach((p, idx) => {
+        prompts.forEach(p => {
             const badgeMap = {'1':'bg-orange-900/50 text-orange-200 border-orange-700/50','2':'bg-slate-700/50 text-slate-200 border-slate-600/50','3':'bg-amber-900/50 text-amber-200 border-amber-700/50','FÜZYON':'bg-fuchsia-900/50 text-fuchsia-200 border-fuchsia-700/50'};
             const bc = badgeMap[p.charStar]||'bg-gray-700 text-gray-300';
             const label = p.charStar==='FÜZYON'?'FUSION':(isNaN(p.charStar)?p.charStar:p.charStar+' ★');
-            html += `<div class="bg-[#131318] p-4 rounded-lg border border-gray-700 relative">
+            html += `<div class="bg-[#131318] p-4 rounded-lg border border-gray-700 relative group">
                 <div class="flex justify-between items-center mb-2">
                     <span class="px-2 py-1 rounded text-xs font-bold border ${bc}">${label}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs text-gray-500">${p.title||'Untitled'}</span>
-                        <button onclick="copyQpText(${idx},this)" class="flex items-center gap-1 text-xs px-2 py-1 rounded transition-colors" style="background:rgba(var(--primary-rgb),.15);color:var(--primary);border:1px solid rgba(var(--primary-rgb),.3);" title="Copy"><span class="material-symbols-outlined" style="font-size:14px;">content_copy</span></button>
-                    </div>
+                    <span class="text-xs text-gray-500">${p.title||'Untitled'}</span>
                 </div>
-                <textarea class="w-full bg-transparent text-sm font-mono text-gray-300 focus:outline-none resize-y min-h-[6rem]" rows="4" spellcheck="false" autocomplete="off" style="user-select:text;-webkit-user-select:text;">${p.prompt}</textarea>
+                <textarea readonly class="w-full bg-transparent text-sm font-mono text-gray-300 focus:outline-none resize-none" rows="4" onclick="this.select()">${p.prompt}</textarea>
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value).then(()=>alert('Copied!'))" class="bg-green-700 text-white p-1 rounded hover:bg-green-600" title="Copy"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+                </div>
             </div>`;
         });
         dom.qpContent.innerHTML=html; dom.qpLoading.classList.add('hidden'); dom.qpContent.classList.remove('hidden');
@@ -2190,217 +1600,69 @@ async function openQuickPromptModal(charId, charName) {
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
-function openExportModal() {
-    dom.exportModal.classList.add('visible'); dom.exportModal.classList.remove('hidden');
-    dom.exportStatus.textContent=''; dom.exportBtn.disabled=false;
-    syncAuToggleState();
-}
+function openExportModal() { dom.exportModal.classList.add('visible'); dom.exportModal.classList.remove('hidden'); dom.exportStatus.textContent=''; dom.exportBtn.disabled=false; }
 function closeExportModal() { dom.exportModal.classList.remove('visible'); dom.exportModal.classList.add('hidden'); }
-function syncAuToggleState() {
-    const unlocked = document.getElementById('export-include-au-unlocked');
-    const subOpts  = document.getElementById('au-sub-options');
-    if (!unlocked || !subOpts) return;
-    subOpts.classList.toggle('collapsed', !unlocked.checked);
-    if (!unlocked.checked) {
-        const locked = document.getElementById('export-include-au-locked');
-        if (locked) locked.checked = false;
-    }
-}
 async function downloadPrompts() {
-    const incRetired       = dom.exportIncludeRetired.checked;
-    const incAuUnlocked    = document.getElementById('export-include-au-unlocked')?.checked ?? false;
-    const incAuLocked      = document.getElementById('export-include-au-locked')?.checked ?? false;
-    const incAU            = incAuUnlocked || incAuLocked;
+    const incRetired = dom.exportIncludeRetired.checked, incEE = dom.exportIncludeEasterEggs.checked, incAU = dom.exportIncludeAu.checked;
     dom.exportBtn.disabled=true; dom.exportStatus.textContent='Fetching data...';
     try {
         const snap = await db.collection('promptLibrary').get();
-        if (snap.empty && !incAU) throw new Error("No prompts found.");
-
-        // ── Build prompt lookup: charId → { star → promptData } ──
-        const promptsByChar = {};
-        snap.docs.map(d => d.data()).forEach(p => {
-            if (!promptsByChar[p.charId]) promptsByChar[p.charId] = {};
-            promptsByChar[p.charId][p.charStar] = p;
+        if (snap.empty) throw new Error("No prompts found.");
+        let all = snap.docs.map(d=>d.data());
+        all.sort((a,b)=>a.charName.localeCompare(b.charName,'en'));
+        let txt='', count=0;
+        all.forEach(p => {
+            const charId=p.charId;
+            let char=characters.find(c=>c.id===charId), type='active';
+            if(!char){char=dismissed.find(c=>c.id===charId);type='retired';}
+            if(!char){char=easterEggs.find(c=>c.id===charId);type='easterEgg';}
+            if(type==='retired'&&!incRetired) return;
+            if(type==='easterEgg'&&!incEE) return;
+            if(!char&&!incRetired) return;
+            let name=p.charName;
+            if(char?.isFusion&&char.fusionPartners){
+                const pNames=char.fusionPartners.map(pid=>[...characters,...dismissed].find(c=>c.id===pid)?.name||'Unknown');
+                name+=` (${pNames.join(' + ')})`;
+            }
+            let star=p.charStar;
+            if(star==='1') star='Level 1'; else if(star==='2') star='Level 2'; else if(star==='3') star='Level 3'; else if(star==='FÜZYON') star='FUSION';
+            txt+=`### ${name} - [${star}] ###\n`;
+            if(p.title) txt+=`Title: ${p.title}\n`;
+            txt+=`${p.prompt}\n--------------------------------------------------\n\n`;
+            count++;
         });
+        if(!count && !incAU) throw new Error("No prompts match the selected criteria.");
 
-        // ── Star label helper ──
-        const starLabel = (star) => {
-            if (star === '1') return '1★';
-            if (star === '2') return '2★';
-            if (star === '3') return '3★';
-            if (star === 'FÜZYON' || star === 'FUSION') return 'Fusion';
-            if (star === 'EK') return 'Extra';
-            return star;
-        };
-
-        // ── AU section helper ──
-        const buildAuSection = (char) => {
-            if (!char.auData || !incAU) return '';
-
-            const unlockedLines = [], lockedLines = [];
-            Object.entries(char.auData).forEach(([auId, entry]) => {
-                if (!entry.prompt) return;
-                const auDef = alternativeUniverses.find(a => a.id === auId);
-                const auName = auDef ? auDef.name : auId;
-                const isLocked = auDef?.locked ? true : false;
-                if (isLocked && !incAuLocked) return;
-                if (!isLocked && !incAuUnlocked) return;
-                const type = char.isFusion ? 'Fusion' : '3★';
-                const line = `#### ${auName} AU (${type})\n\n${entry.prompt}\n`;
-                if (isLocked) lockedLines.push(line);
-                else unlockedLines.push(line);
+        // ── AU prompts ──
+        if (incAU) {
+            const allChars = [...characters, ...(incRetired ? dismissed : [])];
+            const auPromptLines = [];
+            allChars.forEach(char => {
+                if (!char.auData) return;
+                Object.entries(char.auData).forEach(([auId, entry]) => {
+                    if (!entry.prompt) return;
+                    const auDef = alternativeUniverses.find(a => a.id === auId);
+                    const auName = auDef ? auDef.name : auId;
+                    const type = char.isFusion ? 'FUSION' : '3★';
+                    auPromptLines.push(`### ${char.name} - [${auName} AU / ${type}] ###\n${entry.prompt}\n--------------------------------------------------\n\n`);
+                });
             });
-
-            let out = '';
-            if (unlockedLines.length) {
-                out += `\n##### 🌿 Unlocked AUs\n\n` + unlockedLines.join('\n---\n\n');
+            if (auPromptLines.length) {
+                if (count) txt += '\n\n========== AU PROMPTS ==========\n\n';
+                txt += auPromptLines.join('');
+                count += auPromptLines.length;
             }
-            if (lockedLines.length) {
-                out += `\n##### 🔒 Locked AUs\n\n` + lockedLines.join('\n---\n\n');
-            }
-            return out;
-        };
-
-        // ── Collect all chars in sorted order ──
-        const allPool = [...characters, ...(incRetired ? dismissed : [])];
-        const normals = allPool.filter(c => !c.isFusion).sort((a,b) => a.name.localeCompare(b.name,'en'));
-        const fusions = allPool.filter(c => c.isFusion).sort((a,b) => a.name.localeCompare(b.name,'en'));
-        const sorted = [...normals, ...fusions];
-
-        const date = new Date().toISOString().slice(0,10);
-        let md = `# Prompt Archive\n_Generated: ${date}_\n\n---\n\n`;
-        let count = 0;
-
-        sorted.forEach(char => {
-            const charPrompts = promptsByChar[char.id] || {};
-            const auSection = buildAuSection(char);
-            const hasPrompts = Object.keys(charPrompts).length > 0;
-
-            if (!hasPrompts && !auSection) return;
-
-            // ── Character heading ──
-            let heading = `## ${char.name}`;
-            if (char.isFusion && char.fusionPartners) {
-                const allPeople = [...characters, ...dismissed];
-                const pNames = char.fusionPartners.map(pid => allPeople.find(c=>c.id===pid)?.name || 'Unknown');
-                heading += ` *(${pNames.join(' + ')})*`;
-            }
-            if (char.isRetired) heading += ' *(Retired)*';
-            md += heading + '\n\n';
-            if (char.irk) md += `**Race:** ${char.irk}\n\n`;
-
-            // ── Star prompts in order: 1★, 2★, 3★, Fusion, Extra ──
-            const starOrder = ['1','2','3','FÜZYON','FUSION','EK'];
-            let addedPromptsForChar = false;
-            starOrder.forEach(star => {
-                const p = charPrompts[star];
-                if (!p) return;
-                const label = starLabel(star);
-                md += `### ${label} Prompt`;
-                if (p.title) md += ` — *${p.title}*`;
-                md += `\n\n${p.prompt}\n\n`;
-                count++;
-                addedPromptsForChar = true;
-            });
-
-            // ── AU prompts right after this character ──
-            if (auSection) {
-                md += `### Alt. Universe Prompts\n${auSection}\n\n`;
-                count++;
-            }
-
-            md += '---\n\n';
-        });
-
-        if (count === 0) throw new Error("No prompts match the selected criteria.");
-
-        const blob = new Blob([md], {type: 'text/markdown'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `prompt_archive_${date}.md`;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        dom.exportStatus.textContent = `✓ ${count} prompt block(s) exported as .md`;
-        setTimeout(closeExportModal, 2200);
-    } catch(e) {
-        dom.exportStatus.textContent = `Error: ${e.message}`;
-        dom.exportStatus.classList.add('text-red-400');
-    } finally {
-        dom.exportBtn.disabled = false;
-    }
-}
-
-// ─── Bulk Title Manager ───────────────────────────────────────────────────────
-async function openBulkTitleModal() {
-    const modal = document.getElementById('bulk-title-modal');
-    modal.classList.add('visible'); modal.classList.remove('hidden');
-    document.getElementById('bulk-title-status').textContent = '';
-    document.getElementById('bulk-select-all').checked = false;
-    await renderBulkTitleList();
-}
-function closeBulkTitleModal() {
-    const modal = document.getElementById('bulk-title-modal');
-    modal.classList.remove('visible'); modal.classList.add('hidden');
-}
-async function renderBulkTitleList() {
-    const list = document.getElementById('bulk-title-list');
-    list.innerHTML = '<p class="text-center text-gray-400 py-8">Loading…</p>';
-    try {
-        const snap = await db.collection('promptLibrary').get();
-        const prompts = snap.docs.map(d => ({docId: d.id, ...d.data()})).filter(p => p.title && p.title.trim());
-        if (!prompts.length) {
-            list.innerHTML = '<p class="text-center text-gray-400 py-8"><span class="material-symbols-outlined block text-4xl mb-2 opacity-40">check_circle</span>No prompts with titles found.</p>';
-            return;
         }
-        prompts.sort((a, b) => a.charName.localeCompare(b.charName, 'tr'));
-        const starLabels = {'1':'1 ★','2':'2 ★','3':'3 ★','FÜZYON':'FUSION','EK':'EK'};
-        list.innerHTML = '';
-        prompts.forEach(p => {
-            const el = document.createElement('label');
-            el.className = 'flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors';
-            el.style.background = 'var(--surface-high)';
-            el.style.border = '1px solid var(--outline-var)';
-            el.innerHTML = `
-                <input type="checkbox" class="bulk-title-check w-4 h-4 accent-[var(--primary)] flex-shrink-0" data-doc-id="${p.docId}">
-                <div class="flex-grow min-w-0">
-                    <p class="font-semibold text-sm truncate">${p.charName}</p>
-                    <p class="text-xs text-gray-400">${starLabels[p.charStar] || p.charStar} — <span class="text-gray-300">"${p.title}"</span></p>
-                </div>`;
-            list.appendChild(el);
-        });
-        updateBulkSelectedCount();
-        list.querySelectorAll('.bulk-title-check').forEach(cb => {
-            cb.addEventListener('change', updateBulkSelectedCount);
-        });
-    } catch(e) {
-        list.innerHTML = `<p class="text-red-400 text-center py-4">Load error: ${e.message}</p>`;
-    }
-}
-function updateBulkSelectedCount() {
-    const total = document.querySelectorAll('.bulk-title-check').length;
-    const checked = document.querySelectorAll('.bulk-title-check:checked').length;
-    const el = document.getElementById('bulk-selected-count');
-    if (el) el.textContent = checked > 0 ? `${checked} / ${total} selected` : '';
-}
-async function deleteBulkTitles() {
-    if (!firebase.auth().currentUser) { alert("Please sign in first."); return; }
-    const checked = [...document.querySelectorAll('.bulk-title-check:checked')];
-    if (!checked.length) { alert("No titles selected."); return; }
-    if (!confirm(`Clear titles from ${checked.length} prompt(s)?`)) return;
-    const statusEl = document.getElementById('bulk-title-status');
-    statusEl.textContent = 'Deleting…';
-    try {
-        const batch = db.batch();
-        checked.forEach(cb => {
-            batch.update(db.collection('promptLibrary').doc(cb.dataset.docId), { title: '' });
-        });
-        await batch.commit();
-        statusEl.textContent = `✓ ${checked.length} title(s) cleared.`;
-        document.getElementById('bulk-select-all').checked = false;
-        await renderBulkTitleList();
-    } catch(e) {
-        statusEl.textContent = `Hata: ${e.message}`;
-    }
+
+        if(!count) throw new Error("No prompts match the selected criteria.");
+        const blob=new Blob([txt],{type:'text/plain'});
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=`prompt_archive_${new Date().toISOString().slice(0,10)}.txt`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        dom.exportStatus.textContent=`${count} prompt(s) downloaded!`;
+        setTimeout(closeExportModal,2000);
+    } catch(e) { dom.exportStatus.textContent=`Error: ${e.message}`; dom.exportStatus.classList.add('text-red-400');
+    } finally { dom.exportBtn.disabled=false; }
 }
 
 // ─── Image enlarge ────────────────────────────────────────────────────────────
@@ -2420,9 +1682,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // ─── DOMContentLoaded ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     setupImageInputTogglers();
-    setupPromptCharCounters();
-    setupIdRenameWarning();
-    setupDuplicateNameWarning();
     dom.loginSubmitBtn.addEventListener('click', async () => {
         const email=dom.adminEmailInput.value, pw=dom.adminPasswordInput.value;
         dom.loginStatus.textContent='';
@@ -2435,14 +1694,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.addEditForm.addEventListener('submit', handleFormSubmit);
     dom.cancelButton.addEventListener('click', () => { resetForm(); dom.addEditFormContainer.classList.add('hidden'); dom.toggleFormText.textContent='Add New'; dom.toggleFormIcon.textContent='add'; });
     dom.searchInput.addEventListener('input', renderAdminPanel);
-    dom.viewFilter.addEventListener('change', e => {
-        viewState.filter = e.target.value;
-        renderAdminPanel();
-        // After showing report modal, reset back to 'all'
-        if (e.target.value !== 'all' && e.target.value !== 'available') {
-            setTimeout(() => { dom.viewFilter.value = 'all'; viewState.filter = 'all'; }, 100);
-        }
-    });
+    dom.viewFilter.addEventListener('change', e => { viewState.filter=e.target.value; renderAdminPanel(); });
     dom.sortBy.addEventListener('change', e => { viewState.sortBy=e.target.value; renderAdminPanel(); });
     dom.toggleFormBtn.addEventListener('click', () => {
         const hidden = dom.addEditFormContainer.classList.toggle('hidden');
@@ -2451,30 +1703,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!hidden) resetForm();
     });
     dom.selectorSearchInput.addEventListener('input', () => renderCharacterSelector(dom.selectorSearchInput.value));
-
-    // Type filter chips
-    document.querySelectorAll('[data-type-filter]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('[data-type-filter]').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            viewState.typeFilter = btn.dataset.typeFilter;
-            viewState.filter = 'all'; // reset report filter
-            dom.viewFilter.value = 'all';
-            renderAdminPanel();
-        });
-    });
-
-    // Irk filter
-    document.getElementById('irk-filter').addEventListener('change', e => {
-        viewState.irkFilter = e.target.value;
-        renderAdminPanel();
-    });
-
-    // Bulk title select-all
-    document.getElementById('bulk-select-all').addEventListener('change', e => {
-        document.querySelectorAll('.bulk-title-check').forEach(cb => cb.checked = e.target.checked);
-        updateBulkSelectedCount();
-    });
 
     // AU tab listeners
     document.getElementById('create-au-btn').addEventListener('click', () => openAuFormModal());
@@ -2501,7 +1729,6 @@ document.addEventListener('DOMContentLoaded', () => {
     <span id="cache-toast-icon" class="material-symbols-outlined" style="font-size:18px">cloud_download</span>
     <span id="cache-toast-text">Starting…</span>
     <div class="toast-bar"><div class="toast-fill" id="cache-toast-fill" style="width:0%"></div></div>
-    <div id="cache-toast-detail" style="font-size:11px;color:#aaa;margin-top:2px;max-height:32px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis"></div>
 </div>
 
 <script>
@@ -2510,69 +1737,53 @@ document.addEventListener('DOMContentLoaded', () => {
     // Collect all image URLs from the loaded data
     function collectImageUrls() {
         const urls = new Set();
-        // Include both active and dismissed characters
         const all = [...(window.characters||[]), ...(window.dismissed||[])];
 
         all.forEach(c => {
-            if (c.imageUrl && !c.isFusion) urls.add(c.imageUrl);
+            // 1★ main image
+            if (c.imageUrl) urls.add(c.imageUrl);
+            // 2★ and 3★ evolutions
             (c.evolutions || []).forEach(e => { if (e.imageUrl) urls.add(e.imageUrl); });
+            // Fusion GIF + preview
             if (c.isFusion) {
+                if (c.imageUrl)   urls.add(c.imageUrl);
                 if (c.previewUrl) urls.add(c.previewUrl);
             }
+            // AU variants
             const auData = c.auData || {};
             Object.values(auData).forEach(entry => {
-                if (entry.maxStarImageUrl) urls.add(entry.maxStarImageUrl);
                 if (entry.star3ImageUrl)  urls.add(entry.star3ImageUrl);
                 if (entry.fusionImageUrl) urls.add(entry.fusionImageUrl);
             });
         });
 
-        return [...new Set([...urls].map(u => {
-            u = u.replace(/[?&]_t=\d+/g, '');
-            u = u.replace(/\?&/, '?');
-            u = u.replace(/\?$/, '');
-            return u;
-        }))];
+        // Strip cache-bust params if any (_t=...)
+        return [...urls].map(u => u.replace(/[?&]_t=\d+/, ''));
     }
 
-    function formatDuration(ms) {
-        if (ms < 1000) return ms + 'ms';
-        const s = Math.round(ms / 1000);
-        if (s < 60) return s + 's';
-        const m = Math.floor(s / 60);
-        return m + 'm ' + (s % 60) + 's';
-    }
-
-    function shortName(url) {
-        try {
-            const path = new URL(url).pathname;
-            const parts = path.split('/');
-            return parts[parts.length - 1] || path;
-        } catch { return url.slice(-30); }
-    }
-
-    const toast       = document.getElementById('cache-toast');
-    const toastIcon   = document.getElementById('cache-toast-icon');
-    const toastText   = document.getElementById('cache-toast-text');
-    const toastFill   = document.getElementById('cache-toast-fill');
-    const toastDetail = document.getElementById('cache-toast-detail');
+    // Toast helpers
+    const toast      = document.getElementById('cache-toast');
+    const toastIcon  = document.getElementById('cache-toast-icon');
+    const toastText  = document.getElementById('cache-toast-text');
+    const toastFill  = document.getElementById('cache-toast-fill');
     let toastTimer;
 
-    function showToast(icon, text, pct, autohide, detail) {
+    function showToast(icon, text, pct, autohide) {
         clearTimeout(toastTimer);
         toastIcon.textContent = icon;
         toastText.textContent = text;
         toastFill.style.width = (pct ?? 0) + '%';
-        toastDetail.textContent = detail || '';
         toast.classList.remove('hidden');
-        if (autohide) toastTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
+        if (autohide) toastTimer = setTimeout(() => toast.classList.add('hidden'), 3500);
     }
 
+    // Cache button state
     const cacheBtn     = document.getElementById('cache-btn');
     const cacheBtnIcon = document.getElementById('cache-btn-icon');
     const cacheBtnText = document.getElementById('cache-btn-text');
 
     function setBtnState(state) {
+        // state: 'idle' | 'loading' | 'done' | 'clearing'
         cacheBtn.disabled = state === 'loading' || state === 'clearing';
         if (state === 'idle')     { cacheBtnIcon.textContent = 'cloud_download'; cacheBtnText.textContent = 'Cache Images'; }
         if (state === 'loading')  { cacheBtnIcon.textContent = 'sync';           cacheBtnText.textContent = 'Caching…'; }
@@ -2580,124 +1791,57 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state === 'clearing') { cacheBtnIcon.textContent = 'sync';           cacheBtnText.textContent = 'Refreshing…'; }
     }
 
-    // ── Ensure we have an active SW controller before sending messages ───────
-    async function getController() {
-        // If we already have one, use it
-        if (navigator.serviceWorker.controller) {
-            return navigator.serviceWorker.controller;
-        }
-        // Wait for the SW to claim this page (up to 5 seconds)
-        console.log('[Cache] No controller yet, waiting for SW to claim…');
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject(new Error('SW controller not available after 5s'));
-            }, 5000);
-
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                clearTimeout(timeout);
-                console.log('[Cache] Controller acquired:', navigator.serviceWorker.controller?.scriptURL);
-                resolve(navigator.serviceWorker.controller);
-            }, { once: true });
-
-            // Also try registering fresh
-            navigator.serviceWorker.ready.then(reg => {
-                if (navigator.serviceWorker.controller) {
-                    clearTimeout(timeout);
-                    resolve(navigator.serviceWorker.controller);
-                }
-            });
-        });
+    function sendToSW(type, urls) {
+        return navigator.serviceWorker.controller
+            ? navigator.serviceWorker.controller.postMessage({ type, urls })
+            : null;
     }
 
     // Listen for SW progress messages
     navigator.serviceWorker.addEventListener('message', e => {
-        const d = e.data || {};
-        console.log('[Cache] SW message:', d.type, d.done !== undefined ? `${d.done}/${d.total}` : '');
-
-        if (d.type === 'CACHE_PROGRESS') {
-            const { done, total, skipped, failedCount, elapsedMs, currentBatch, batchDurationMs } = d;
+        const { type, done, total } = e.data || {};
+        if (type === 'CACHE_PROGRESS') {
             const pct = Math.round((done / total) * 100);
-            const elapsed = formatDuration(elapsedMs || 0);
-
-            let failTxt = failedCount ? ` · ${failedCount} failed` : '';
-            let skipTxt = skipped ? ` · ${skipped} already cached` : '';
-            showToast('cloud_download', `${done} / ${total}${skipTxt}${failTxt} — ${elapsed}`, pct, false,
-                currentBatch ? `${currentBatch.map(shortName).join(', ')}` :
-                batchDurationMs ? `Son batch: ${formatDuration(batchDurationMs)}` : '');
-
+            showToast('cloud_download', `Caching… ${done} / ${total}`, pct);
             cacheBtnText.textContent = `${pct}%`;
         }
-        if (d.type === 'CACHE_COMPLETE') {
-            const { total, skipped, failed, elapsedMs } = d;
-            const elapsed = formatDuration(elapsedMs || 0);
-            const newDownloads = total - (skipped || 0) - (failed ? failed.length : 0);
-
-            if (failed && failed.length) {
-                const reasons = {};
-                failed.forEach(f => { reasons[f.reason] = (reasons[f.reason] || 0) + 1; });
-                const summary = Object.entries(reasons).map(([r,c]) => `${c}x ${r}`).join(', ');
-
-                showToast('warning',
-                    `${total - failed.length}/${total} cached, ${failed.length} failed — ${elapsed}`,
-                    100, false,
-                    summary);
-
-                console.group(`[Cache] ${failed.length} images failed:`);
-                failed.forEach(f => {
-                    const dur = f.durationMs ? ` (${formatDuration(f.durationMs)})` : '';
-                    console.warn(f.reason + dur, '→', f.url);
-                });
-                console.groupEnd();
-            } else {
-                const detail = skipped ? `${newDownloads} new, ${skipped} already cached` : '';
-                showToast('cloud_done', `${total} images cached — ${elapsed}`, 100, true, detail);
-            }
+        if (type === 'CACHE_COMPLETE') {
+            showToast('cloud_done', `Done — ${total} images cached`, 100, true);
             setBtnState('done');
         }
-        if (d.type === 'CACHE_CLEARED') {
-            showToast('sync', 'Cache cleared — re-downloading…', 0);
+        if (type === 'CACHE_CLEARED') {
+            showToast('sync', 'Cache cleared — re-caching…', 0);
         }
     });
 
-    // Click handler
-    cacheBtn.addEventListener('click', async e => {
+    // Click handler — first click caches, shift+click forces a full refresh
+    cacheBtn.addEventListener('click', e => {
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+            alert('Service worker not active. Try refreshing the page first.');
+            return;
+        }
         const urls = collectImageUrls();
-        console.log('[Cache] Collected URLs:', urls.length);
         if (!urls.length) {
             alert('No character data loaded yet. Wait for the page to finish loading.');
             return;
         }
 
-        let controller;
-        try {
-            controller = await getController();
-        } catch (err) {
-            console.error('[Cache]', err.message);
-            alert('Service worker not active. Try refreshing the page (Ctrl+Shift+R).');
-            return;
-        }
-
-        console.log('[Cache] Sending to SW:', controller.scriptURL);
-
         if (e.shiftKey) {
-            if (!confirm(`Wipe the image cache and re-download all ${urls.length} images?`)) return;
+            // Shift+click = clear + re-cache
+            if (!confirm(`Wipe the image cache and re-download all ${urls.length} images? This may take a moment.`)) return;
             setBtnState('clearing');
-            showToast('sync', 'Cache temizleniyor…', 0);
-            controller.postMessage({ type: 'CLEAR_IMAGE_CACHE', urls });
+            showToast('sync', 'Clearing cache…', 0);
+            sendToSW('CLEAR_IMAGE_CACHE', urls);
         } else {
+            // Normal click = cache missing images only
             setBtnState('loading');
             showToast('cloud_download', `Caching ${urls.length} images…`, 0);
-            controller.postMessage({ type: 'PRECACHE_IMAGES', urls });
+            sendToSW('PRECACHE_IMAGES', urls);
         }
     });
 
+    // Tooltip hint
     cacheBtn.title = 'Cache all images for fast loading • Shift+click to force refresh';
-
-    // Log SW state on load for debugging
-    console.log('[Cache] SW controller on load:', navigator.serviceWorker.controller?.scriptURL || 'NONE');
-    navigator.serviceWorker.ready.then(reg => {
-        console.log('[Cache] SW ready — active:', reg.active?.scriptURL, 'waiting:', reg.waiting?.scriptURL);
-    });
 })();
 </script>
 </body>

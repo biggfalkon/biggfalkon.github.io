@@ -1,10 +1,14 @@
-const CACHE_NAME        = 'karakter-galerisi-cache-v2';
-const IMAGE_CACHE_NAME  = 'karakter-images-v1';
+const CACHE_NAME        = 'karakter-app-v1';
+const IMAGE_CACHE_NAME  = 'karakter-images-v2';
 
-// Core app shell cached on install
 const urlsToCache = [
-    '/',
-    './index.html'
+    './',
+    './index.html',
+    './index2.html',
+    './oyun.html',
+    './rastgelekarakter.html',
+    './links.html',
+    './manifest.json'
 ];
 
 // ─── Install ──────────────────────────────────────────────────────────────────
@@ -18,92 +22,149 @@ self.addEventListener('install', event => {
 
 // ─── Activate ─────────────────────────────────────────────────────────────────
 self.addEventListener('activate', event => {
-    event.waitUntil(clients.claim());
+    const keep = new Set([CACHE_NAME, IMAGE_CACHE_NAME]);
+    event.waitUntil(
+        caches.keys().then(names =>
+            Promise.all(
+                names.filter(n => !keep.has(n)).map(n => caches.delete(n))
+            )
+        ).then(() => clients.claim())
+    );
 });
+
+// ─── URL normalization ───────────────────────────────────────────────────────
+function stripCacheBust(rawUrl) {
+    return rawUrl
+        .replace(/[?&]_t=\d+/g, '')
+        .replace(/\?&/, '?')
+        .replace(/\?$/, '');
+}
 
 // ─── Fetch — cache-first for images ──────────────────────────────────────────
 self.addEventListener('fetch', event => {
     if (event.request.destination === 'image') {
+        const cleanUrl = stripCacheBust(event.request.url);
         event.respondWith(
-            // Check image cache first, then app cache, then network
             caches.open(IMAGE_CACHE_NAME).then(imgCache =>
-                imgCache.match(event.request).then(cached => {
+                imgCache.match(cleanUrl).then(cached => {
                     if (cached) return cached;
-                    return caches.match(event.request).then(appCached => {
-                        if (appCached) return appCached;
-                        return fetch(event.request).then(networkResponse => {
-                            imgCache.put(event.request, networkResponse.clone());
-                            return networkResponse;
-                        });
-                    });
+                    return fetch(event.request).then(res => {
+                        if (res.ok || res.type === 'opaque') {
+                            imgCache.put(cleanUrl, res.clone()).catch(() => {});
+                        }
+                        return res;
+                    }).catch(() => cached || new Response('', { status: 404 }));
                 })
             )
         );
         return;
     }
 
-    // Non-image: app cache → network
-    event.respondWith(
-        caches.match(event.request).then(response => response || fetch(event.request))
-    );
-});
-
-// ─── Messages from pages ──────────────────────────────────────────────────────
-self.addEventListener('message', event => {
-    const { type, urls } = event.data || {};
-
-    // PRECACHE_IMAGES — store a batch of image URLs into IMAGE_CACHE_NAME
-    if (type === 'PRECACHE_IMAGES') {
-        event.waitUntil(precacheImages(urls, event.source));
-        return;
-    }
-
-    // CLEAR_IMAGE_CACHE — wipe IMAGE_CACHE_NAME then optionally re-precache
-    if (type === 'CLEAR_IMAGE_CACHE') {
-        event.waitUntil(
-            caches.delete(IMAGE_CACHE_NAME).then(() => {
-                if (event.source) {
-                    event.source.postMessage({ type: 'CACHE_CLEARED' });
-                }
-                // Re-precache if URLs were supplied
-                if (urls && urls.length) return precacheImages(urls, event.source);
-            })
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).then(res => {
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, res.clone()));
+                return res;
+            }).catch(() => caches.match(event.request))
         );
         return;
     }
+
+    event.respondWith(
+        caches.match(event.request).then(res => res || fetch(event.request))
+    );
 });
 
-async function precacheImages(urls, client) {
+// ─── Broadcast ──────────────────────────────────────────────────────────────
+async function broadcast(msg) {
+    const allClients = await self.clients.matchAll({ type: 'window' });
+    for (const c of allClients) {
+        try { c.postMessage(msg); } catch (_) {}
+    }
+}
+
+// ─── Messages ───────────────────────────────────────────────────────────────
+self.addEventListener('message', event => {
+    const { type, urls } = event.data || {};
+    if (type === 'PRECACHE_IMAGES') {
+        event.waitUntil(precacheImages(urls));
+    }
+    if (type === 'CLEAR_IMAGE_CACHE') {
+        event.waitUntil(
+            caches.delete(IMAGE_CACHE_NAME).then(() => {
+                broadcast({ type: 'CACHE_CLEARED' });
+                if (urls && urls.length) return precacheImages(urls);
+            })
+        );
+    }
+});
+
+// ─── Precache images ────────────────────────────────────────────────────────
+// Opaque responses (no-cors cross-origin) cannot have their body read,
+// so blob.size is always 0. Store them directly — this is fine for caching
+// purposes and what browsers have always done with opaque responses.
+async function precacheImages(urls) {
     if (!urls || !urls.length) return;
     const cache = await caches.open(IMAGE_CACHE_NAME);
 
-    let done = 0;
+    let done = 0, skipped = 0;
     const total = urls.length;
+    const failed = [];
+    const BATCH    = 6;
+    const DELAY_MS = 50;
+    const startTime = Date.now();
 
-    // Fetch in parallel batches of 6 to avoid overwhelming the network
-    const BATCH = 6;
     for (let i = 0; i < urls.length; i += BATCH) {
         const batch = urls.slice(i, i + BATCH);
+        const batchStart = Date.now();
+
+        broadcast({
+            type: 'CACHE_PROGRESS',
+            done, total, skipped,
+            failedCount: failed.length,
+            elapsedMs: Date.now() - startTime,
+            currentBatch: batch,
+            batchIndex: i
+        });
+
         await Promise.allSettled(batch.map(async url => {
-            // Skip if already cached (set-and-forget: don't re-fetch)
-            const existing = await cache.match(url);
-            if (existing) { done++; return; }
+            const t0 = Date.now();
             try {
-                const response = await fetch(url, { mode: 'no-cors' });
-                await cache.put(url, response);
-            } catch(e) {
-                console.warn('[SW] Failed to cache:', url, e);
+                const existing = await cache.match(url);
+                if (existing) {
+                    done++;
+                    skipped++;
+                    return;
+                }
+
+                // no-cors → opaque response; store directly, do NOT try to read blob
+                const res = await fetch(url, { mode: 'no-cors' });
+                await cache.put(url, res);
+                done++;
+            } catch (e) {
+                done++;
+                const reason = e.name === 'QuotaExceededError' ? 'storage full'
+                    : (e.message || 'error');
+                failed.push({ url, reason, durationMs: Date.now() - t0 });
             }
-            done++;
         }));
 
-        // Report progress back to the requesting page
-        if (client) {
-            client.postMessage({ type: 'CACHE_PROGRESS', done, total });
+        broadcast({
+            type: 'CACHE_PROGRESS',
+            done, total, skipped,
+            failedCount: failed.length,
+            elapsedMs: Date.now() - startTime,
+            batchDurationMs: Date.now() - batchStart
+        });
+
+        if (i + BATCH < urls.length) {
+            await new Promise(r => setTimeout(r, DELAY_MS));
         }
     }
 
-    if (client) {
-        client.postMessage({ type: 'CACHE_COMPLETE', total });
-    }
+    broadcast({
+        type: 'CACHE_COMPLETE',
+        total, skipped, failed,
+        elapsedMs: Date.now() - startTime
+    });
 }
